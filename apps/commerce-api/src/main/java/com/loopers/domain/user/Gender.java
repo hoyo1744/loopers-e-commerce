@@ -15,11 +15,9 @@ public enum Gender {
 
     public static Gender from(String input){
         for (Gender gender : values()) {
-            System.out.println(gender.name() + " : " + input);
             if (gender.name().equalsIgnoreCase(input)) {
                 return gender;
             }
-            System.out.println(gender.value + " : " + input);
             if (gender.value.equalsIgnoreCase(input)) {
                 return gender;
             }
