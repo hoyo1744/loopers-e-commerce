@@ -8,6 +8,9 @@ import com.loopers.support.error.ErrorType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -27,6 +30,32 @@ public class ApiControllerAdvice {
     public ResponseEntity<ApiResponse<?>> handle(CoreException e) {
         log.warn("CoreException : {}", e.getCustomMessage() != null ? e.getCustomMessage() : e.getMessage(), e);
         return failureResponse(e.getErrorType(), e.getCustomMessage());
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<ApiResponse<?>> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+        // 첫 번째 오류만 추출
+        FieldError fieldError = e.getBindingResult().getFieldError();
+        String field = fieldError != null ? fieldError.getField() : "unknown";
+        String rejectedValue = fieldError != null && fieldError.getRejectedValue() != null
+                ? fieldError.getRejectedValue().toString()
+                : "null";
+        String message = fieldError != null && fieldError.getDefaultMessage() != null
+                ? fieldError.getDefaultMessage()
+                : "잘못된 요청입니다.";
+
+        String formatted = String.format("필드 '%s'의 값 '%s'이(가) 유효하지 않습니다. 사유: %s", field, rejectedValue, message);
+        return failureResponse(ErrorType.BAD_REQUEST, formatted);
+    }
+
+
+    @ExceptionHandler
+    public ResponseEntity<ApiResponse<?>> handleMissingRequestHeaderException(MissingRequestHeaderException e) {
+
+        String headerName = e.getHeaderName();
+        String parameterName = e.getParameter().getParameterType() != null ? e.getParameter().getParameterType().getSimpleName() : "unknown";
+        String message = String.format("필수 요청 헤더 '%s' (타입: %s)가 누락되었습니다.", headerName, parameterName);
+        return failureResponse(ErrorType.BAD_REQUEST, message);
     }
 
     @ExceptionHandler
