@@ -8,9 +8,11 @@ import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Component
+@Transactional(readOnly = true)
 public class PointFacade {
 
     private final PointService pointService;
@@ -32,6 +34,7 @@ public class PointFacade {
         return AppPointResult.Point.of(findPoint.getAmount());
     }
 
+    @Transactional
     public AppPointResult.ChargedPoint charge(String userId, Long amount) {
         if (userId == null) {
             throw new CoreException(ErrorType.NOT_FOUND, "회원 ID는 필수입니다.");
