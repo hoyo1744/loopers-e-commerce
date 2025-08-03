@@ -1,7 +1,5 @@
 package com.loopers.domain.point;
 
-import com.loopers.domain.user.Gender;
-import com.loopers.domain.user.User;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 import org.assertj.core.api.Assertions;
@@ -23,7 +21,7 @@ class PointTest {
     @DisplayName("0 이하의 정수로 포인트를 충전 시 실패한다.")
     public void failsToChargePoints_whenAmountIsZeroOrNegative() throws Exception{
         //given
-        Point point = Point.of("hoyong.eom", 0L);
+        Point point = Point.create("hoyong.eom", 0L);
 
         //when
         CoreException result = assertThrows(

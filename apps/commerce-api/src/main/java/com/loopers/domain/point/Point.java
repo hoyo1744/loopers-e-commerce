@@ -34,7 +34,15 @@ public class Point {
         }
     }
 
-    public static Point of(String userId, Long amount) {
+    public void deduct(Long amount) {
+        validationAmount(amount);
+        if (this.amount < amount) {
+            throw new CoreException(ErrorType.BAD_REQUEST, "포인트가 부족합니다. 현재 포인트: " + this.amount + ", 요청 포인트: " + amount);
+        }
+        this.amount -= amount;
+    }
+
+    public static Point create(String userId, Long amount) {
         validationAmount(amount);
 
         return Point.builder()
@@ -48,6 +56,8 @@ public class Point {
             throw new CoreException(ErrorType.BAD_REQUEST, "포인트 금액은 0 보다 작을 수 없습니다.");
         }
     }
+
+
 
 
 }
