@@ -55,7 +55,7 @@ class UserApiE2ETest {
             String phoneNumber = "010-1234-5678";
             String birthDate = "2025-04-20";
             String gender = "M";
-            User user = User.of(id, password, userName, email, phoneNumber, birthDate, Gender.from(gender));
+            User user = User.create(id, password, userName, email, phoneNumber, birthDate, Gender.from(gender));
 
             userService.signUpUser(user);
 

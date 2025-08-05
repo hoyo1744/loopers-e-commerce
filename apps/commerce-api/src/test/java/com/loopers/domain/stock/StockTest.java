@@ -21,31 +21,31 @@ class StockTest {
         @ParameterizedTest
         @NullSource
         @ValueSource(longs = {0, -1})
-        @DisplayName("상품 ID가 null 또는 0 이하이면 BAD_REQUEST 예외를 발생시킨다.")
+        @DisplayName("상품 ID가 null 또는 0 이하이면 IllegalArgumentException 예외를 발생시킨다.")
         public void throwBadRequest_whenProductIdInvalid(Long productId) {
             // given & when
-            CoreException result = assertThrows(
-                    CoreException.class,
+            IllegalArgumentException result = assertThrows(
+                    IllegalArgumentException.class,
                     () -> Stock.create(productId, 10L)
             );
 
             // then
-            Assertions.assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
+            Assertions.assertThat(result.getMessage()).isEqualTo("존재하지 않는 상품 ID 입니다.");
         }
 
         @ParameterizedTest
         @NullSource
         @ValueSource(longs = {-1})
-        @DisplayName("수량이 null 또는 음수이면 BAD_REQUEST 예외를 발생시킨다.")
+        @DisplayName("수량이 null 또는 음수이면 IllegalArgumentException 예외를 발생시킨다.")
         public void throwBadRequest_whenQuantityInvalid(Long quantity) {
             // given & when
-            CoreException result = assertThrows(
-                    CoreException.class,
+            IllegalArgumentException result = assertThrows(
+                    IllegalArgumentException.class,
                     () -> Stock.create(1L, quantity)
             );
 
             // then
-            Assertions.assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
+            Assertions.assertThat(result.getMessage()).isEqualTo("재고 수량은 0 이상이어야 합니다.");
         }
 
         @Test
@@ -95,44 +95,41 @@ class StockTest {
         }
 
         @Test
-        @DisplayName("요청 수량이 재고 이상이면 false 반환")
-        public void hasEnough_shouldReturnFalse_whenNotEnough() {
+        @DisplayName("요청 수량이 재고 이상이면 IllegalArgumentException 예외를 던진다")
+        void hasEnough_shouldThrowException_whenNotEnough() {
             // given
             Stock stock = Stock.create(1L, 5L);
 
-            // when
-            boolean result = stock.hasEnough(10L);
-
-            // then
-            Assertions.assertThat(result).isFalse();
+            // when & then
+            Assertions.assertThatThrownBy(() -> stock.hasEnough(10L))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("재고가 부족합니다.");
         }
 
         @Test
-        @DisplayName("요청 수량이 재고 이하이면 true 반환")
-        public void hasEnough_shouldReturnTrue_whenEnough() {
+        @DisplayName("요청 수량이 재고 이하이면 예외를 던지지 않는다")
+        void hasEnough_shouldNotThrow_whenEnough() {
             // given
             Stock stock = Stock.create(1L, 10L);
 
-            // when
-            boolean result = stock.hasEnough(5L);
-
-            // then
-            Assertions.assertThat(result).isTrue();
+            // when & then
+            Assertions.assertThatCode(() -> stock.hasEnough(5L))
+                    .doesNotThrowAnyException();
         }
 
         @ParameterizedTest
         @NullSource
         @ValueSource(longs = {0, -1})
-        @DisplayName("요청 수량이 null 또는 1 미만이면 BAD_REQUEST 예외를 발생시킨다.")
+        @DisplayName("요청 수량이 null 또는 1 미만이면 IllegalArgumentException 예외를 발생시킨다.")
         public void shouldThrow_whenRequestedQuantityInvalid(Long requestedQuantity) {
             // given
             Stock stock = Stock.create(1L, 10L);
 
             // when
-            CoreException result = assertThrows(CoreException.class, () -> stock.hasEnough(requestedQuantity));
+            RuntimeException result = assertThrows(RuntimeException.class, () -> stock.hasEnough(requestedQuantity));
 
             // then
-            Assertions.assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
+            Assertions.assertThat(result.getMessage()).isEqualTo("요청 수량은 1 이상이어야 합니다.");
         }
     }
 }

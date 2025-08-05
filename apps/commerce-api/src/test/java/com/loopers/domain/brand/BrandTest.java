@@ -14,7 +14,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class BrandTest {
 
-
     @DisplayName("Brand 도메인 생성 테스트")
     @Nested
     class Create {
@@ -72,5 +71,6 @@ class BrandTest {
         }
 
     }
+
 
 }

@@ -15,14 +15,17 @@ public class OrderRequest {
     @NoArgsConstructor
     public static class Order {
         private List<OrderProduct> orderProducts;
+        private Long couponId;
 
-        public Order(List<OrderProduct> orderProducts) {
+        public Order(List<OrderProduct> orderProducts, Long couponId) {
             this.orderProducts = orderProducts;
+            this.couponId = couponId;
         }
 
-        public static Order of(List<OrderProduct> orderItems) {
+        public static Order of(List<OrderProduct> orderItems, Long couponId) {
             return Order.builder()
                     .orderProducts(orderItems)
+                    .couponId(couponId)
                     .build();
         }
     }

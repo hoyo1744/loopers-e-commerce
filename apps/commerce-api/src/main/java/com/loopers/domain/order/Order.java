@@ -25,9 +25,13 @@ public class Order {
 
     private String userId;
 
+    private Long userCouponId;
+
     private OrderStatus orderStatus;
 
     private Long totalPrice;
+
+    private Long discountPrice;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderProduct> orderProducts = new ArrayList<>();
@@ -60,7 +64,6 @@ public class Order {
                 .orderProducts(new ArrayList<>())
                 .build();
 
-
         List<OrderProduct> orderProducts = command.getOrderProducts().stream().map(op -> OrderProduct.create(
                 order,
                 op.getProductId(),
@@ -75,5 +78,17 @@ public class Order {
         return order;
     }
 
+    public void applyDiscount(Long userCouponId, Long discountAmount) {
+        if (discountAmount < 0) {
+            throw new IllegalArgumentException("할인 금액은 0 이상이어야 합니다.");
+        }
+        this.userCouponId = userCouponId;
+        this.discountPrice = discountAmount;
+    }
+
+    public Long calculateFinalPrice() {
+        long discount = (discountPrice != null) ? discountPrice : 0L;
+        return totalPrice - discount;
+    }
 
 }

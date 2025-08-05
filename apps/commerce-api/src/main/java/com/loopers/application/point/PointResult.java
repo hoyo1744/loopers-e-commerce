@@ -2,7 +2,7 @@ package com.loopers.application.point;
 
 import lombok.Getter;
 
-public class AppPointResult {
+public class PointResult {
 
     @Getter
     public static class Point {
@@ -12,8 +12,8 @@ public class AppPointResult {
             this.point = point;
         }
 
-        public static AppPointResult.Point of(Long point) {
-            return new AppPointResult.Point(point);
+        public static PointResult.Point of(Long point) {
+            return new PointResult.Point(point);
         }
     }
 
@@ -25,8 +25,8 @@ public class AppPointResult {
             this.point = point;
         }
 
-        public static AppPointResult.ChargedPoint of(Long amount) {
-            return new AppPointResult.ChargedPoint(amount);
+        public static PointResult.ChargedPoint of(Long amount) {
+            return new PointResult.ChargedPoint(amount);
         }
     }
 }

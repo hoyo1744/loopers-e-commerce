@@ -12,9 +12,11 @@ public class StockService {
 
     private final StockRepository stockRepository;
 
-    public boolean isStockAvailable(Long productId, Long quantity) {
-        Stock stock = stockRepository.findByProductId(productId);
-        return stock.hasEnough(quantity);
+    public void validateStock(StockCommand.OrderProducts orderProducts) {
+            orderProducts.getOrderProducts().forEach(orderProduct -> {
+                Stock stock = stockRepository.findByProductId(orderProduct.getProductId());
+                stock.hasEnough(orderProduct.getQuantity());
+            });
     }
 
     public StockInfo.Stock getStock(Long produdctId) {

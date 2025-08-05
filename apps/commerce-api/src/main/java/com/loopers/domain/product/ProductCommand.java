@@ -1,9 +1,12 @@
 package com.loopers.domain.product;
 
+import com.loopers.application.order.OrderCriteria;
+import com.loopers.domain.stock.StockCommand;
 import lombok.Builder;
 import lombok.Getter;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ProductCommand {
 

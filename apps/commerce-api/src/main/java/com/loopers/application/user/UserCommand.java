@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class AppUserCommand {
+public class UserCommand {
 
     @Getter
     public static class SignUp {
@@ -35,7 +35,7 @@ public class AppUserCommand {
         }
 
         public User toDomainUser() {
-            return User.of(
+            return User.create(
                     id,
                     password,
                     name,

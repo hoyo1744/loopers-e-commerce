@@ -1,10 +1,13 @@
 package com.loopers.application.order;
 
-import com.loopers.interfaces.api.order.OrderRequest;
+import com.loopers.domain.product.ProductCommand;
+import com.loopers.domain.stock.StockCommand;
+import com.loopers.domain.usercoupon.UserCouponCommand;
 import lombok.Builder;
 import lombok.Getter;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class OrderCriteria {
 
@@ -13,17 +16,38 @@ public class OrderCriteria {
     public static class Order {
         String userId;
         List<OrderProduct> orderProducts;
+        Long couponId;
 
-        private Order(String userId, List<OrderProduct> orderProducts) {
+        private Order(String userId, List<OrderProduct> orderProducts, Long couponId) {
             this.userId = userId;
             this.orderProducts = orderProducts;
+            this.couponId = couponId;
         }
 
-        public static Order of(String userId, List<OrderProduct> orderProducts) {
+        public static Order of(String userId, List<OrderProduct> orderProducts, Long couponId) {
             return Order.builder()
                     .userId(userId)
                     .orderProducts(orderProducts)
+                    .couponId(couponId)
                     .build();
+        }
+
+        public ProductCommand.OrderProducts toProductCommand() {
+            List<ProductCommand.OrderProduct> collect = orderProducts.stream().map(
+                            op -> ProductCommand.OrderProduct.of(op.getProductId(), op.getQuantity()))
+                    .collect(Collectors.toList());
+            return ProductCommand.OrderProducts.of(collect);
+        }
+
+        public StockCommand.OrderProducts toStockCommand() {
+            List<StockCommand.OrderProduct> collect = orderProducts.stream().map(
+                            op -> StockCommand.OrderProduct.of(op.getProductId(), op.getQuantity()))
+                    .collect(Collectors.toList());
+            return StockCommand.OrderProducts.of(collect);
+        }
+
+        public UserCouponCommand.UserCoupon toUserCouponCommand() {
+            return UserCouponCommand.UserCoupon.of(userId, couponId);
         }
     }
 

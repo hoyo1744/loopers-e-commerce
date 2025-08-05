@@ -6,9 +6,11 @@ import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Component
+@Transactional(readOnly = true)
 public class UserFacade {
     private final UserService userService;
 
@@ -20,11 +22,8 @@ public class UserFacade {
         return AppUserResult.User.from(user);
     }
 
-    public AppUserResult.User signUpUser(AppUserCommand.SignUp signUpUserCommand) {
-        UserInfo.User findUser = userService.getUser(signUpUserCommand.getId());
-        if (findUser != null) {
-            throw new CoreException(ErrorType.CONFLICT, "이미 등록된 회원입니다.");
-        }
+    @Transactional
+    public AppUserResult.User signUpUser(UserCommand.SignUp signUpUserCommand) {
         UserInfo.User signUpUser = userService.signUpUser(signUpUserCommand.toDomainUser());
         return AppUserResult.User.from(signUpUser);
     }

@@ -1,9 +1,11 @@
 package com.loopers.domain.stock;
 
+import com.loopers.application.order.OrderCriteria;
 import lombok.Builder;
 import lombok.Getter;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class StockCommand {
 
@@ -21,6 +23,8 @@ public class StockCommand {
                     .orderProducts(orderProducts)
                     .build();
         }
+
+
     }
 
     @Getter

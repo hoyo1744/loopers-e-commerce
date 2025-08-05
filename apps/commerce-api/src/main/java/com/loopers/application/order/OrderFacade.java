@@ -2,26 +2,26 @@ package com.loopers.application.order;
 
 import com.loopers.domain.brand.BrandCommand;
 import com.loopers.domain.brand.BrandService;
-import com.loopers.domain.order.OrderCommand;
-import com.loopers.domain.order.OrderInfo;
-import com.loopers.domain.order.OrderService;
-import com.loopers.domain.order.OrderStatus;
+import com.loopers.domain.coupon.Coupon;
+import com.loopers.domain.coupon.CouponService;
+import com.loopers.domain.order.*;
+import com.loopers.domain.ordercalculator.OrderCalculator;
 import com.loopers.domain.payment.PaymentCommand;
 import com.loopers.domain.payment.PaymentService;
 import com.loopers.domain.point.PointCommand;
 import com.loopers.domain.point.PointService;
-import com.loopers.domain.product.ProductCommand;
 import com.loopers.domain.product.ProductInfo;
 import com.loopers.domain.product.ProductService;
-import com.loopers.domain.stock.StockCommand;
 import com.loopers.domain.stock.StockService;
+import com.loopers.domain.user.UserService;
+import com.loopers.domain.usercoupon.UserCoupon;
+import com.loopers.domain.usercoupon.UserCouponService;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
@@ -41,61 +41,50 @@ public class OrderFacade {
 
     private final BrandService brandService;
 
+    private final UserCouponService userCouponService;
+
+    private final CouponService couponService;
+
+    private final OrderCalculator orderCalculator;
+
+    private final UserService userService;
+
 
     @Transactional
-    public void order(OrderCriteria.Order order) {
-        if (order == null || order.getOrderProducts() == null || order.getOrderProducts().isEmpty()) {
+    public void order(OrderCriteria.Order request) {
+
+        if (request == null || request.getOrderProducts() == null || request.getOrderProducts().isEmpty()) {
             throw new CoreException(ErrorType.BAD_REQUEST, "주문할 상품이 없습니다.");
         }
 
-        if (order.getUserId() == null || order.getUserId().isEmpty()) {
-            throw new CoreException(ErrorType.UNAUTHORIZED, "로그인 후 이용 가능합니다.");
-        }
+        userService.getUser(request.getUserId());
 
-        // 재고 확인
-        order.orderProducts.stream()
-                .forEach(orderProduct -> {
-                    if (orderProduct.getProductId() == null || orderProduct.getQuantity() == null) {
-                        throw new CoreException(ErrorType.BAD_REQUEST, "상품 ID와 수량은 필수입니다.");
-                    }
-                    if (!stockService.isStockAvailable(orderProduct.getProductId(), orderProduct.getQuantity())) {
-                        throw new CoreException(ErrorType.BAD_REQUEST, "재고가 부족합니다. 상품 ID: " + orderProduct.getProductId());
-                    }
-                });
+        stockService.validateStock(request.toStockCommand());
 
-        // 상품 정보 확인
-        List<ProductCommand.OrderProduct> list = order.orderProducts.stream().map(
-                        orderProduct -> ProductCommand.OrderProduct.of(orderProduct.getProductId(), orderProduct.getQuantity()))
-                .toList();
+        ProductInfo.OrderProducts orderProducts = productService.getOrderProducts(request.toProductCommand());
 
-        ProductInfo.OrderProducts orderProducts = productService.getOrderProducts(ProductCommand.OrderProducts.of(list));
+        UserCoupon userCoupon = userCouponService.getAvailableUserCoupon(request.toUserCouponCommand());
 
+        Coupon coupon = couponService.getCoupon(userCoupon.getCouponId());
 
-        // Order 및 OrderProduct 생성
-        OrderInfo.Order orderInfo = orderService.createOrder(OrderCommand.Order.of(order.getUserId(),
+        Order order = orderService.createOrder(OrderCommand.Order.of(request.getUserId(),
                 OrderCommand.OrderProducts.of(
                         orderProducts.getOrderProducts().stream()
                                 .map(op -> OrderCommand.OrderProduct.of(op.getProductId(), op.getQuantity(), op.getPrice()))
                                 .collect(Collectors.toList()))
         ));
 
+        orderCalculator.applyDiscount(order, coupon, userCoupon);
 
-        // -> 주문 완료 후
-        // 외부 결제 요청
-        paymentService.pay(PaymentCommand.Pay.of(orderInfo.getTotalPrice(), orderInfo.getOrderId()));
+        paymentService.pay(PaymentCommand.Pay.of(order.calculateFinalPrice(), order.getId()));
 
-        // 재고 감소
-        stockService.decreaseStock(StockCommand.OrderProducts.of(
-                order.orderProducts.stream()
-                        .map(op -> StockCommand.OrderProduct.of(op.getProductId(), op.getQuantity()))
-                        .collect(Collectors.toList())
-        ));
+        stockService.decreaseStock(request.toStockCommand());
 
-        // 포인트 감소
-        pointService.deductPoint(PointCommand.Use.of(order.getUserId(), orderInfo.getTotalPrice()));
+        userCouponService.useUserCoupon(userCoupon.getId());
 
-        // 주문 상태 업데이트
-        orderService.updateOrderStatus(OrderCommand.OrderStatus.of(orderInfo.getOrderId(), OrderStatus.COMPLETE.getValue()));
+        pointService.deductPoint(PointCommand.Use.of(request.getUserId(), order.calculateFinalPrice()));
+
+        orderService.pay(OrderCommand.OrderStatus.of(order.getId(), OrderStatus.COMPLETE.getValue()));
     }
 
     public OrderResult.Orders getOrders(String userId) {

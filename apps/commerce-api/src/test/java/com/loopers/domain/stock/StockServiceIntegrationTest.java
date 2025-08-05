@@ -1,6 +1,7 @@
 package com.loopers.domain.stock;
 
 import com.loopers.utils.DatabaseCleanUp;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -36,31 +37,38 @@ class StockServiceIntegrationTest {
     class StockTests {
 
         @Test
-        @DisplayName("재고가 충분할 경우 true를 반환한다")
-        void shouldReturnTrue_whenStockIsSufficient() {
+        @DisplayName("재고가 충분할 경우 예외를 던지지 않는다")
+        void shouldNotThrow_whenStockIsSufficient() {
             // given
             Long productId = 1L;
-            stockRepository.save(Stock.create(productId, 100L));
+            stockRepository.save(Stock.create(productId, 50L));
 
-            // when
-            boolean result = stockService.isStockAvailable(productId, 50L);
-
-            // then
-            assertThat(result).isTrue();
+            // when & then
+            Assertions.assertThatCode(() ->
+                    stockService.validateStock(
+                            StockCommand.OrderProducts.of(
+                                    List.of(StockCommand.OrderProduct.of(productId, 30L))
+                            )
+                    )
+            ).doesNotThrowAnyException();
         }
 
         @Test
-        @DisplayName("재고가 부족할 경우 false를 반환한다")
-        void shouldReturnFalse_whenStockIsInsufficient() {
+        @DisplayName("재고가 부족할 경우 IllegalArgumentException 예외를 던진다")
+        void shouldThrowException_whenStockIsInsufficient() {
             // given
             Long productId = 1L;
             stockRepository.save(Stock.create(productId, 30L));
 
-            // when
-            boolean result = stockService.isStockAvailable(productId, 50L);
-
-            // then
-            assertThat(result).isFalse();
+            // when & then
+            Assertions.assertThatThrownBy(() ->
+                    stockService.validateStock(
+                            StockCommand.OrderProducts.of(
+                                    List.of(StockCommand.OrderProduct.of(productId, 50L))
+                            )
+                    )
+            ).isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("재고가 부족합니다.");
         }
 
         @Test
