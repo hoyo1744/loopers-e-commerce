@@ -24,13 +24,13 @@ class PointTest {
         Point point = Point.create("hoyong.eom", 0L);
 
         //when
-        CoreException result = assertThrows(
-                CoreException.class, () -> {
+        IllegalArgumentException result = assertThrows(
+                IllegalArgumentException.class, () -> {
                     point.charge(-1L);
                 });
 
         //then
-        Assertions.assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
+        Assertions.assertThat(result.getMessage()).isEqualTo("포인트 충전 금액은 0 보다 커야 합니다.");
     }
 
 }
