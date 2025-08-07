@@ -43,11 +43,9 @@ public class StockService {
                 .sorted(Comparator.comparing(StockCommand.OrderProduct::getProductId))
                 .forEach(orderProduct -> {
                     Stock stock = stockRepository.findByProductIdForUpdate(orderProduct.getProductId());
-                    System.out.println("111stock.getQuantity() = " + stock.getQuantity());
-//                    stock.hasEnough(orderProduct.getQuantity());
+                    stock.hasEnough(orderProduct.getQuantity());
                     stock.decrementQuantity(orderProduct.getQuantity());
                     stockRepository.save(stock);
-                    System.out.println("222stock.getQuantity() = " + stock.getQuantity());
                 });
     }
 
