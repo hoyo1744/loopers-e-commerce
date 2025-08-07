@@ -15,10 +15,8 @@ public interface LikeJpaRepository extends JpaRepository<Like, Long> {
 
     Like save(Like like);
 
-    void deleteByUserIdAndProductId(String userId, Long productId);
+    Long deleteByUserIdAndProductId(String userId, Long productId);
 
     List<Like> findAllByUserId(String userId);
-
-
 
 }
