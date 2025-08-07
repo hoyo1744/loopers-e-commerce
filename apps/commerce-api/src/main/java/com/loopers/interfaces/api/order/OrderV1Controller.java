@@ -25,7 +25,7 @@ public class OrderV1Controller {
 
         orderFacade.order(OrderCriteria.Order.of(userId, order.getOrderProducts().stream()
                 .map(op -> OrderCriteria.OrderProduct.of(op.getProductId(), op.getQuantity()))
-                .collect(Collectors.toList())));
+                .collect(Collectors.toList()), order.getCouponId()));
         return ApiResponse.success();
     }
 

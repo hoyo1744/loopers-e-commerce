@@ -2,7 +2,6 @@ package com.loopers.domain.order;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -12,8 +11,7 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
 
-    public OrderInfo.Order createOrder(OrderCommand.Order command) {
-
+    public Order createOrder(OrderCommand.Order command) {
         Order order = Order.create(command.getUserId(),
                 OrderCommand.OrderProducts.of(
                         command.getOrderProducts().getOrderProducts().stream()
@@ -24,26 +22,10 @@ public class OrderService {
                                 .toList()
                 ));
 
-        orderRepository.save(order);
-
-        return OrderInfo.Order.of(
-                order.getId(),
-                order.getUserId(),
-                order.getTotalPrice(),
-                OrderInfo.OrderProducts.of(
-                order.getOrderProducts().stream()
-                        .map(orderProduct -> OrderInfo.OrderProduct.of(
-                                orderProduct.getProductId(),
-                                orderProduct.getQuantity(),
-                                orderProduct.getPrice()
-                                ))
-                        .toList()
-                ),
-                order.getOrderStatus().getValue()
-        );
+        return orderRepository.save(order);
     }
 
-    public void updateOrderStatus(OrderCommand.OrderStatus command) {
+    public void pay(OrderCommand.OrderStatus command) {
         Order order = orderRepository.findById(command.getOrderId());
         order.updateOrderStatus(OrderStatus.from(command.getStatus()));
     }
