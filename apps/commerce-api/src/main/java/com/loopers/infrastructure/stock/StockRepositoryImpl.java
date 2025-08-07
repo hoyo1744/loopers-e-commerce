@@ -22,4 +22,9 @@ public class StockRepositoryImpl implements StockRepository {
     public Stock save(Stock stock) {
         return stockJpaRepository.save(stock);
     }
+
+    @Override
+    public Stock findByProductIdForUpdate(Long productId) {
+        return stockJpaRepository.findByProductIdForUpdate(productId);
+    }
 }

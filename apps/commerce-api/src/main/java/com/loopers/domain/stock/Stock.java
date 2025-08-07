@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "stack")
+@Table(name = "stock")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Stock {
 
@@ -44,13 +44,13 @@ public class Stock {
 
     public static void validationProduct(Long productId) {
         if (productId == null || productId <= 0) {
-            throw new CoreException(ErrorType.BAD_REQUEST, "존재하지 않는 상품 ID 입니다.");
+            throw new IllegalArgumentException("존재하지 않는 상품 ID 입니다.");
         }
     }
 
     public static void validationQuantity(Long quantity) {
         if (quantity == null || quantity < 0) {
-            throw new CoreException(ErrorType.BAD_REQUEST, "재고 수량은 0 이상이어야 합니다.");
+            throw new IllegalArgumentException("재고 수량은 0 이상이어야 합니다.");
         }
     }
 
@@ -62,10 +62,13 @@ public class Stock {
         this.quantity -= quantity;
     }
 
-    public boolean hasEnough(Long requestedQuantity) {
+    public void hasEnough(Long requestedQuantity) {
         if (requestedQuantity == null || requestedQuantity <= 0) {
             throw new CoreException(ErrorType.BAD_REQUEST, "요청 수량은 1 이상이어야 합니다.");
         }
-        return this.quantity >= requestedQuantity;
+
+        if (this.quantity < requestedQuantity) {
+            throw new CoreException(ErrorType.BAD_REQUEST, "재고가 부족합니다.");
+        }
     }
 }
