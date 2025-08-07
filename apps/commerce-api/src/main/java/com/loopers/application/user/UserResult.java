@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public class AppUserResult {
+public class UserResult {
 
     @Getter
     public static class User {
@@ -27,13 +27,13 @@ public class AppUserResult {
             this.gender = gender;
         }
 
-        public static AppUserResult.User of(String id, String name, String email, String phoneNumber, String birthDate, String gender) {
-            return new AppUserResult.User(id, name, email, phoneNumber, birthDate, gender);
+        public static UserResult.User of(String id, String name, String email, String phoneNumber, String birthDate, String gender) {
+            return new UserResult.User(id, name, email, phoneNumber, birthDate, gender);
         }
 
-        public static AppUserResult.User from(UserInfo.User user) {
+        public static UserResult.User from(UserInfo.User user) {
             User.user = user;
-            return AppUserResult.User.of(
+            return UserResult.User.of(
                     user.getId(),
                     user.getName(),
                     user.getEmail(),

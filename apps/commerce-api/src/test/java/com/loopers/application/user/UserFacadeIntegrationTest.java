@@ -51,10 +51,10 @@ class UserFacadeIntegrationTest {
             String birthDate = "1994-04-20";
             String gender = "M";
 
-            AppUserResult.User signUpResult = userFacade.signUpUser(UserCommand.SignUp.of(id, password, userName, email, phoneNumber, birthDate, gender));
+            UserResult.User signUpResult = userFacade.signUpUser(UserCommand.SignUp.of(id, password, userName, email, phoneNumber, birthDate, gender));
 
             //when
-            AppUserResult.User result = userFacade.getUser(id);
+            UserResult.User result = userFacade.getUser(id);
 
             //then
             Assertions.assertAll(
@@ -86,11 +86,11 @@ class UserFacadeIntegrationTest {
             String phoneNumber = "010-1234-5678";
             String birthDate = "1994-04-20";
             String gender = "M";
-            AppUserResult.User signUpResult
+            UserResult.User signUpResult
                     = userFacade.signUpUser(UserCommand.SignUp.of(id, password, userName, email, phoneNumber, birthDate, gender));
 
             //when
-            AppUserResult.User result = userFacade.getUser(id);
+            UserResult.User result = userFacade.getUser(id);
 
             //then
             Assertions.assertAll(

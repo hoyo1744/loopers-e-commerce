@@ -59,7 +59,7 @@ class UserFacadeTest {
             when(userService.getUser(userId)).thenReturn(user);
 
             // when
-            AppUserResult.User result = userFacade.getUser(userId);
+            UserResult.User result = userFacade.getUser(userId);
 
             // then
             Assertions.assertThat(result.getId()).isEqualTo("hoyong");
@@ -105,7 +105,7 @@ class UserFacadeTest {
             UserInfo.User newUser = UserInfo.User.of(
                     userId, "hoyongeom", "hoyongeom@gmail.com", "010-1234-5678", "2025-04-20", "M"
             );
-            AppUserResult.User expectedUser = AppUserResult.User.of(
+            UserResult.User expectedUser = UserResult.User.of(
                     userId, "hoyongeom", "hoyongeom@gmail.com", "010-1234-5678", "2025-04-20", "M"
             );
 
@@ -115,7 +115,7 @@ class UserFacadeTest {
             when(userService.signUpUser(mockUser)).thenReturn(newUser);
 
             //when
-            AppUserResult.User result = userFacade.signUpUser(signUpCommand);
+            UserResult.User result = userFacade.signUpUser(signUpCommand);
 
             //then
             assertAll(

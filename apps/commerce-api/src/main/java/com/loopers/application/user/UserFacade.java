@@ -14,18 +14,18 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserFacade {
     private final UserService userService;
 
-    public AppUserResult.User getUser(String userId) {
+    public UserResult.User getUser(String userId) {
         UserInfo.User user = userService.getUser(userId);
         if (user == null) {
             throw new CoreException(ErrorType.NOT_FOUND, "존재하지 않는 회원입니다.");
         }
-        return AppUserResult.User.from(user);
+        return UserResult.User.from(user);
     }
 
     @Transactional
-    public AppUserResult.User signUpUser(UserCommand.SignUp signUpUserCommand) {
+    public UserResult.User signUpUser(UserCommand.SignUp signUpUserCommand) {
         UserInfo.User signUpUser = userService.signUpUser(signUpUserCommand.toDomainUser());
-        return AppUserResult.User.from(signUpUser);
+        return UserResult.User.from(signUpUser);
     }
 
 }

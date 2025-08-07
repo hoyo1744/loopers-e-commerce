@@ -1,6 +1,6 @@
 package com.loopers.interfaces.api.user;
 
-import com.loopers.application.user.AppUserResult;
+import com.loopers.application.user.UserResult;
 import com.loopers.application.user.UserFacade;
 import com.loopers.interfaces.api.ApiResponse;
 import jakarta.validation.Valid;
@@ -17,7 +17,7 @@ public class UserV1Controller implements UserV1ApiSpec {
     @Override
     @GetMapping("/me")
     public ApiResponse<UserResponse.User> getUser(@RequestHeader(value = "X-USER-ID") String id) {
-        AppUserResult.User user =
+        UserResult.User user =
                 userFacade.getUser(id);
 
         return ApiResponse.success(UserResponse.User.from(user));
@@ -26,7 +26,7 @@ public class UserV1Controller implements UserV1ApiSpec {
     @Override
     @PostMapping
     public ApiResponse<UserResponse.User> signUpUser(@Valid @RequestBody UserRequest.SignUp signUp) {
-        AppUserResult.User user =
+        UserResult.User user =
                 userFacade.signUpUser(signUp.toAppUserCommand());
 
         return ApiResponse.success(UserResponse.User.from(user));
