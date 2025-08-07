@@ -15,4 +15,6 @@ public interface LikeRepository {
     void delete(String userId, Long productId);
 
     List<Like> findAllByUserId(String userId);
+
+    Long deleteByUserIdAndProductId(String userId, Long productId);
 }

@@ -4,8 +4,7 @@ import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.NoSuchElementException;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -28,8 +27,10 @@ public class UserCouponService {
         return findUserCoupon;
     }
 
-    public void useUserCoupon(Long userCouponId) {
+    @Transactional
+    public void useCoupon(Long userCouponId) {
         UserCoupon userCoupon = userCouponRepository.findById(userCouponId);
         userCoupon.use();
+        userCouponRepository.saveAndFlush(userCoupon);
     }
 }

@@ -95,14 +95,14 @@ class StockTest {
         }
 
         @Test
-        @DisplayName("요청 수량이 재고 이상이면 IllegalArgumentException 예외를 던진다")
+        @DisplayName("요청 수량이 재고 이상이면 400 Bad Request 예외를 던진다")
         void hasEnough_shouldThrowException_whenNotEnough() {
             // given
             Stock stock = Stock.create(1L, 5L);
 
             // when & then
             Assertions.assertThatThrownBy(() -> stock.hasEnough(10L))
-                    .isInstanceOf(IllegalArgumentException.class)
+                    .isInstanceOf(CoreException.class)
                     .hasMessage("재고가 부족합니다.");
         }
 

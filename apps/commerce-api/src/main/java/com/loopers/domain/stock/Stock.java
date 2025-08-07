@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "stack")
+@Table(name = "stock")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Stock {
 

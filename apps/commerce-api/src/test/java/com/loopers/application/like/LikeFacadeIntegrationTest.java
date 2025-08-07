@@ -2,6 +2,7 @@ package com.loopers.application.like;
 
 import com.loopers.domain.brand.Brand;
 import com.loopers.domain.brand.BrandRepository;
+import com.loopers.domain.like.LikeService;
 import com.loopers.domain.product.Product;
 import com.loopers.domain.product.ProductRepository;
 import com.loopers.domain.stock.Stock;
@@ -14,7 +15,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -23,6 +29,9 @@ class LikeFacadeIntegrationTest {
 
     @Autowired
     private LikeFacade likeFacade;
+
+    @Autowired
+    private LikeService likeService;
 
     @Autowired
     private ProductRepository productRepository;
@@ -75,6 +84,70 @@ class LikeFacadeIntegrationTest {
             assertThat(result.getLike().getLiked()).isTrue();
             assertThat(result.getLike().getCount()).isEqualTo(1L);
             assertThat(result.getBrand().getName()).isEqualTo("Nike");
+        }
+
+    }
+
+
+    @DisplayName("좋아요 등록/해제 동시성 테스트")
+    @Nested
+    public class Concurrent {
+
+        @Test
+        @DisplayName("여러 유저가 동시에 1개의 상품에 좋아요 등록시, 좋아요 개수가 정상 반영된다.")
+        public void shouldCountLikesCorrectly_whenMultipleUsersLikeSameProductConcurrently() throws Exception{
+            int userCount = 100;
+            List<String> userIds = new ArrayList<>(userCount);
+            for (int i = 0; i < userCount; i++) {
+                userIds.add("user-" + i);
+            }
+
+            ExecutorService pool = Executors.newFixedThreadPool(12);
+            CountDownLatch startGate = new CountDownLatch(1);
+            CountDownLatch doneGate = new CountDownLatch(userCount);
+
+            // when
+            for (String uid : userIds) {
+                pool.submit(() -> {
+                    try {
+                        startGate.await();
+                        likeFacade.likeProduct(LikeCriteria.Like.of(uid, 1L));
+                    } catch (InterruptedException ignored) {
+                        Thread.currentThread().interrupt();
+                    } finally {
+                        doneGate.countDown();
+                    }
+                });
+            }
+
+            startGate.countDown();
+            boolean completed = doneGate.await(10, TimeUnit.SECONDS);
+            pool.shutdown();
+
+            // then
+            assertThat(completed)
+                    .as("모든 작업이 타임아웃 내에 완료되어야 한다")
+                    .isTrue();
+
+            Long likeCount = likeService.countLikes(1L);
+            assertThat(likeCount)
+                    .as("동시에 %s명의 유저가 같은 상품을 좋아요 → 최종 좋아요 수는 정확히 %s여야 한다", userCount, userCount)
+                    .isEqualTo(userCount);
+        }
+
+        private void likeSetup(Long productId) {
+            // 초기 seed: user-0 ~ user-29 (30명) 좋아요 상태로 만들어둠
+            for (int i = 0; i < 30; i++) {
+                likeFacade.likeProduct(LikeCriteria.Like.of("user-" + i, productId));
+            }
+            Long seeded = likeService.countLikes(productId);
+            assertThat(seeded).isEqualTo(30L);
+        }
+
+        private List<String> users(int fromInclusive, int toExclusive) {
+            List<String> list = new ArrayList<>(toExclusive - fromInclusive);
+            for (int i = fromInclusive; i < toExclusive; i++) list.add("user-" + i);
+            return list;
         }
 
     }

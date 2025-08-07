@@ -22,11 +22,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class OrderFacade {
 
     private final OrderService orderService;
@@ -63,9 +63,10 @@ public class OrderFacade {
 
         ProductInfo.OrderProducts orderProducts = productService.getOrderProducts(request.toProductCommand());
 
-        UserCoupon userCoupon = userCouponService.getAvailableUserCoupon(request.toUserCouponCommand());
+        Optional<Long> optionalCouponId = Optional.ofNullable(request.getCouponId());
+        Optional<UserCoupon> userCoupon = optionalCouponId.map(id -> userCouponService.getAvailableUserCoupon(request.toUserCouponCommand()));
 
-        Coupon coupon = couponService.getCoupon(userCoupon.getCouponId());
+        Optional<Coupon> coupon = userCoupon.map(uc -> couponService.getCoupon(uc.getCouponId()));
 
         Order order = orderService.createOrder(OrderCommand.Order.of(request.getUserId(),
                 OrderCommand.OrderProducts.of(
@@ -74,19 +75,23 @@ public class OrderFacade {
                                 .collect(Collectors.toList()))
         ));
 
-        orderCalculator.applyDiscount(order, coupon, userCoupon);
+        userCoupon.ifPresent(uc -> {
+            coupon.ifPresent(c -> {
+                orderCalculator.applyDiscount(order, c, uc);
+                userCouponService.useCoupon(uc.getId());
+            });
+        });
 
         paymentService.pay(PaymentCommand.Pay.of(order.calculateFinalPrice(), order.getId()));
 
         stockService.decreaseStock(request.toStockCommand());
-
-        userCouponService.useUserCoupon(userCoupon.getId());
 
         pointService.deductPoint(PointCommand.Use.of(request.getUserId(), order.calculateFinalPrice()));
 
         orderService.pay(OrderCommand.OrderStatus.of(order.getId(), OrderStatus.COMPLETE.getValue()));
     }
 
+    @Transactional(readOnly = true)
     public OrderResult.Orders getOrders(String userId) {
 
         if (userId == null || userId.isEmpty()) {

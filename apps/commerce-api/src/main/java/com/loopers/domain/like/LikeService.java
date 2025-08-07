@@ -1,7 +1,10 @@
 package com.loopers.domain.like;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -19,21 +22,21 @@ public class LikeService {
         return likeRepository.countByProductId(productId);
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public boolean likeProduct(LikeCommand.Like command) {
-        if (likeRepository.existsByUserIdAndProductId(command.getUserId(), command.getProductId())) {
+        Like like = Like.create(command.getUserId(), command.getProductId());
+        try {
+            likeRepository.save(like);
+            return true;
+        } catch (DataIntegrityViolationException e) {
             return false;
         }
-        Like like = Like.create(command.getUserId(), command.getProductId());
-        likeRepository.save(like);
-        return true;
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public boolean unLikeProduct(LikeCommand.Unlike command) {
-        if (!likeRepository.existsByUserIdAndProductId(command.getUserId(), command.getProductId())) {
-            return false;
-        }
-        likeRepository.delete(command.getUserId(), command.getProductId());
-        return true;
+        Long affected = likeRepository.deleteByUserIdAndProductId(command.getUserId(), command.getProductId());
+        return affected > 0;
     }
 
     public List<LikeInfo.LikeProduct> getLikeProduct(String userId) {

@@ -12,13 +12,13 @@ import com.loopers.domain.stock.StockInfo;
 import com.loopers.domain.stock.StockService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.UnexpectedRollbackException;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @RequiredArgsConstructor
 @Component
-@Transactional(readOnly = true)
 public class LikeFacade {
 
     private final LikeService likeService;
@@ -31,12 +31,21 @@ public class LikeFacade {
 
     @Transactional
     public Boolean likeProduct(LikeCriteria.Like like) {
-        return likeService.likeProduct(LikeCommand.Like.of(like.getUserId(), like.getProductId()));
+        try {
+            return likeService.likeProduct(LikeCommand.Like.of(like.getUserId(), like.getProductId()));
+        } catch (UnexpectedRollbackException ex) {
+            return false;
+        }
+
     }
 
     @Transactional
     public Boolean unlikeProduct(LikeCriteria.Unlike unlike) {
-        return likeService.unLikeProduct(LikeCommand.Unlike.of(unlike.getUserId(), unlike.getProductId()));
+        try {
+            return likeService.unLikeProduct(LikeCommand.Unlike.of(unlike.getUserId(), unlike.getProductId()));
+        } catch (UnexpectedRollbackException ex) {
+            return false;
+        }
     }
 
     public List<LikeResult.Product> getLikedProducts(LikeCriteria.User user) {

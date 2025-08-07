@@ -1,7 +1,6 @@
 package com.loopers.domain.usercoupon;
 
 import com.loopers.support.error.CoreException;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -12,6 +11,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -48,7 +49,7 @@ class UserCouponServiceTest {
             UserCoupon result = userCouponService.getAvailableUserCoupon(command);
 
             // then
-            Assertions.assertThat(result).isSameAs(userCoupon);
+            assertThat(result).isSameAs(userCoupon);
             verify(userCouponRepository).findByUserIdAndCouponId(userId, couponId);
             verify(userCoupon).isUsable();
             verifyNoMoreInteractions(userCouponRepository, userCoupon);
@@ -69,7 +70,7 @@ class UserCouponServiceTest {
                     .thenReturn(Optional.empty());
 
             // when & then
-            Assertions.assertThatThrownBy(() -> userCouponService.getAvailableUserCoupon(command))
+            assertThatThrownBy(() -> userCouponService.getAvailableUserCoupon(command))
                     .isInstanceOf(CoreException.class)
                     .hasMessageContaining("userId=" + userId)
                     .hasMessageContaining("couponId=" + couponId);
@@ -96,7 +97,7 @@ class UserCouponServiceTest {
                     .thenReturn(Optional.of(userCoupon));
 
             // when & then
-            Assertions.assertThatThrownBy(() -> userCouponService.getAvailableUserCoupon(command))
+            assertThatThrownBy(() -> userCouponService.getAvailableUserCoupon(command))
                     .isInstanceOf(CoreException.class)
                     .hasMessageContaining("사용 불가능한 상태");
 
@@ -120,11 +121,12 @@ class UserCouponServiceTest {
             when(userCouponRepository.findById(userCouponId)).thenReturn(userCoupon);
 
             // when
-            userCouponService.useUserCoupon(userCouponId);
+            userCouponService.useCoupon(userCouponId);
 
             // then
             verify(userCouponRepository).findById(userCouponId);
             verify(userCoupon).use();
+            verify(userCouponRepository).saveAndFlush(userCoupon);
             verifyNoMoreInteractions(userCouponRepository, userCoupon);
         }
     }

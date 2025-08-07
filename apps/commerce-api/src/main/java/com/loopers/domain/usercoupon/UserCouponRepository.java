@@ -10,4 +10,5 @@ public interface UserCouponRepository {
 
     UserCoupon save(UserCoupon userCoupon);
 
+    UserCoupon saveAndFlush(UserCoupon userCoupon);
 }

@@ -4,6 +4,7 @@ import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -20,14 +21,16 @@ public class PointService {
         return PointInfo.Point.of(point.getAmount(), point.getUserId());
     }
 
+    @Transactional
     public PointInfo.Point chargePoint(String userId, Long amount) {
-        Point point = pointRepository.findByUserId(userId).orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "사용자 포인트가 존재하지 않습니다. userId: " + userId));
+        Point point = pointRepository.findByUserIdForUpdate(userId).orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "사용자 포인트가 존재하지 않습니다. userId: " + userId));
         point.charge(amount);
         return PointInfo.Point.of(point.getAmount(), userId);
     }
 
+    @Transactional
     public void deductPoint(PointCommand.Use command) {
-        Point point = pointRepository.findByUserId(command.getUserId())
+        Point point = pointRepository.findByUserIdForUpdate(command.getUserId())
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "사용자 포인트가 존재하지 않습니다. userId: " + command.getUserId()));
         point.deduct(command.getPoint());
     }

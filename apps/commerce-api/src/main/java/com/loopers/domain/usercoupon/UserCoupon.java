@@ -31,6 +31,9 @@ public class UserCoupon {
     @Enumerated(EnumType.STRING)
     private UserCouponStatus userCouponStatus;
 
+    @Version
+    private Long version;
+
     @Builder
     private UserCoupon(Long id, String userId, Long couponId, LocalDateTime usedAt, LocalDateTime issuedAt, UserCouponStatus userCouponStatus) {
         this.id = id;
@@ -42,7 +45,6 @@ public class UserCoupon {
     }
 
     public static UserCoupon create(String userId, Long couponId) {
-
         return UserCoupon.builder()
                 .userId(userId)
                 .couponId(couponId)
@@ -54,7 +56,6 @@ public class UserCoupon {
     public Boolean isUsable() {
         return this.userCouponStatus.isUsable();
     }
-
 
     public void use() {
         this.userCouponStatus.validateUsable();
