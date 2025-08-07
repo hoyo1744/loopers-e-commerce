@@ -19,7 +19,7 @@ public class PointFacade {
 
     private final UserService userService;
 
-    public AppPointResult.Point getPoint(String userId) {
+    public PointResult.Point getPoint(String userId) {
         if (userId == null || userId.isEmpty()) {
             throw new CoreException(ErrorType.NOT_FOUND, "회원 ID는 필수입니다.");
         }
@@ -31,22 +31,19 @@ public class PointFacade {
 
         PointInfo.Point findPoint = pointService.getPoint(userId);
 
-        return AppPointResult.Point.of(findPoint.getAmount());
+        return PointResult.Point.of(findPoint.getAmount());
     }
 
     @Transactional
-    public AppPointResult.ChargedPoint charge(String userId, Long amount) {
+    public PointResult.ChargedPoint charge(String userId, Long amount) {
         if (userId == null) {
             throw new CoreException(ErrorType.NOT_FOUND, "회원 ID는 필수입니다.");
         }
 
-        UserInfo.User user = userService.getUser(userId);
-        if (user == null) {
-            throw new CoreException(ErrorType.NOT_FOUND, "존재하지 않는 회원입니다.");
-        }
+        userService.getUser(userId);
 
         PointInfo.Point point = pointService.chargePoint(userId, amount);
-        return AppPointResult.ChargedPoint.of(point.getAmount());
+        return PointResult.ChargedPoint.of(point.getAmount());
     }
 
 }
