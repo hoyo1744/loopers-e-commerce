@@ -1,6 +1,6 @@
 package com.loopers.interfaces.api.user;
 
-import com.loopers.application.user.AppUserCommand;
+import com.loopers.application.user.UserCommand;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -40,8 +40,8 @@ public class UserRequest {
             return new SignUp(userId, password, userName, email, phoneNumber, birthDate, gender);
         }
 
-        public AppUserCommand.SignUp toAppUserCommand() {
-            return AppUserCommand.SignUp.of(
+        public UserCommand.SignUp toAppUserCommand() {
+            return UserCommand.SignUp.of(
                     id, password, name, email, phoneNumber, birthDate, gender
             );
         }
