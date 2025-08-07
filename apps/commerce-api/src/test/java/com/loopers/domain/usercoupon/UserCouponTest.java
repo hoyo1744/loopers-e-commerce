@@ -1,5 +1,6 @@
 package com.loopers.domain.usercoupon;
 
+import com.loopers.support.error.CoreException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -89,7 +90,7 @@ class UserCouponTest {
         }
 
         @Test
-        @DisplayName("USED 상태의 쿠폰을 사용하면 예외가 발생한다")
+        @DisplayName("USED 상태의 쿠폰을 사용하면 400 Bad Request 예외가 발생한다")
         void useCoupon_shouldThrow_whenAlreadyUsed() {
             // given
             UserCoupon userCoupon = UserCoupon.builder()
@@ -102,7 +103,7 @@ class UserCouponTest {
 
             // when & then
             assertThatThrownBy(userCoupon::use)
-                    .isInstanceOf(IllegalStateException.class)
+                    .isInstanceOf(CoreException.class)
                     .hasMessageContaining("사용할 수 없는 쿠폰");
         }
     }

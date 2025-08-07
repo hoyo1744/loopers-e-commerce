@@ -1,5 +1,7 @@
 package com.loopers.domain.usercoupon;
 
+import com.loopers.support.error.CoreException;
+import com.loopers.support.error.ErrorType;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -17,7 +19,7 @@ public enum UserCouponStatus {
 
     public void validateUsable() {
         if (!isUsable()) {
-            throw new IllegalStateException("이미 사용했거나 사용할 수 없는 쿠폰입니다.");
+            throw new CoreException(ErrorType.CONFLICT, "이미 사용했거나 사용할 수 없는 쿠폰입니다.");
         }
     }
 
