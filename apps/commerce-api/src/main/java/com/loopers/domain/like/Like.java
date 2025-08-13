@@ -11,7 +11,10 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "likes")
+@Table(
+        name = "likes",
+        uniqueConstraints = @UniqueConstraint(name = "uk_likes_user_product", columnNames = {"user_id", "product_id"})
+)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Like {
 
@@ -23,7 +26,6 @@ public class Like {
     private String userId;
 
     private Long productId;
-
 
     @Builder
     private Like(Long id, Long productId, String userId) {

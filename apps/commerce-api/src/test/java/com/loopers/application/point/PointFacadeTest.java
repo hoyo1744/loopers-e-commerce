@@ -16,8 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class PointFacadeTest {
@@ -47,7 +46,7 @@ class PointFacadeTest {
             when(pointService.getPoint(userId)).thenReturn(mockPoint);
 
             //when
-            AppPointResult.Point result = pointFacade.getPoint(userId);
+            PointResult.Point result = pointFacade.getPoint(userId);
 
 
             //then
@@ -110,7 +109,7 @@ class PointFacadeTest {
             when(pointService.chargePoint(userId, amount)).thenReturn(chargedPoint);
 
             // when
-            AppPointResult.ChargedPoint result = pointFacade.charge(userId, amount);
+            PointResult.ChargedPoint result = pointFacade.charge(userId, amount);
 
             // then
             assertThat(result.getPoint()).isEqualTo(1500L);
@@ -138,14 +137,18 @@ class PointFacadeTest {
             String userId = "non-existent-user";
             Long amount = 1000L;
 
-            when(userService.getUser(userId)).thenReturn(null);
+            when(userService.getUser(userId))
+                    .thenThrow(new CoreException(ErrorType.NOT_FOUND, "존재하지 않는 회원입니다."));
 
-            // when, then
+            // when & then
             assertThatThrownBy(() -> pointFacade.charge(userId, amount))
                     .isInstanceOf(CoreException.class)
                     .hasMessageContaining("존재하지 않는 회원입니다.")
                     .extracting("errorType")
                     .isEqualTo(ErrorType.NOT_FOUND);
+
+            verify(userService).getUser(userId);
+            verifyNoInteractions(pointService);
         }
 
     }

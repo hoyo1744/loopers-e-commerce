@@ -35,7 +35,7 @@ class UserTest {
             //when
             CoreException result = assertThrows(
                     CoreException.class, () -> {
-                        User.of(
+                        User.create(
                                 emptyUserId,
                                 password,
                                 userName,
@@ -64,7 +64,7 @@ class UserTest {
             //when
             CoreException result = assertThrows(
                     CoreException.class, () -> {
-                        User.of(
+                        User.create(
                                 userId,
                                 emptyPassword,
                                 userName,
@@ -93,7 +93,7 @@ class UserTest {
             //when
             CoreException result = assertThrows(
                     CoreException.class, () -> {
-                        User.of(
+                        User.create(
                                 userId,
                                 password,
                                 emptyUserName,
@@ -123,7 +123,7 @@ class UserTest {
             //when
             CoreException result = assertThrows(
                     CoreException.class, () -> {
-                        User.of(
+                        User.create(
                                 userIdExceeds10Characters,
                                 password,
                                 userName,
@@ -141,7 +141,7 @@ class UserTest {
     
     @Test
     @DisplayName("이메일 형식이 맞지 않으면, BAD_REQUEST 예외가 발생한다.")
-    public void failsToOfUser_whenEmailFormatIsInvalid() throws Exception{
+    public void failsToCreateUser_whenEmailFormatIsInvalid() throws Exception{
         //given
         String userId = "userId";
         String password = "password";
@@ -153,7 +153,7 @@ class UserTest {
         //when
         CoreException result = assertThrows(
                 CoreException.class, () -> {
-                    User.of(
+                    User.create(
                             userId,
                             password,
                             userName,
@@ -170,7 +170,7 @@ class UserTest {
     
     @Test
     @DisplayName("생년월일이 yyyy-MM-dd 형식에 맞지 않는 경우, BAD_REQUEST 예외가 발생한다.")
-    public void failsToOfUser_whenBirthDateFormatIsNot_yyyyMMdd() throws Exception{
+    public void failsToCreateUser_whenBirthDateFormatIsNot_yyyyMMdd() throws Exception{
         //given
         String userId = "userId";
         String password = "password";
@@ -182,7 +182,7 @@ class UserTest {
         //when
         CoreException result = assertThrows(
                 CoreException.class, () -> {
-                    User.of(
+                    User.create(
                             userId,
                             password,
                             userName,
@@ -199,7 +199,7 @@ class UserTest {
 
     @Test
     @DisplayName("성별이 비어있는 경우, BAD_REQUEST 예외가 발생한다.")
-    public void failsToOfUser_whenGengerIsEmpty() throws Exception{
+    public void failsToCreateUser_whenGengerIsEmpty() throws Exception{
         //given
         String userId = "userId";
         String password = "password";
@@ -213,7 +213,7 @@ class UserTest {
         //when
         CoreException result = assertThrows(
                 CoreException.class, () -> {
-                    User.of(
+                    User.create(
                             userId,
                             password,
                             userName,

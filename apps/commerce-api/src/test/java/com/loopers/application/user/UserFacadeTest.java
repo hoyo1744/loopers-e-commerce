@@ -15,8 +15,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class UserFacadeTest {
@@ -60,7 +59,7 @@ class UserFacadeTest {
             when(userService.getUser(userId)).thenReturn(user);
 
             // when
-            AppUserResult.User result = userFacade.getUser(userId);
+            UserResult.User result = userFacade.getUser(userId);
 
             // then
             Assertions.assertThat(result.getId()).isEqualTo("hoyong");
@@ -79,16 +78,16 @@ class UserFacadeTest {
     public class SignUp {
 
         @Test
-        @DisplayName("이미 등록된 회원일 경우, 예외가 발생한다.")
-        public void throwsException_whenUserAlreadyExists() throws Exception{
-            //given
-            String userId = "hoyongeom";
-            AppUserCommand.SignUp signUpCommand = mock(AppUserCommand.SignUp.class);
+        @DisplayName("이미 등록된 회원일 경우, 예외가 발생한다")
+        void signUpUser_shouldThrow_whenUserAlreadyExists() {
+            // given
+            UserCommand.SignUp signUpCommand = mock(UserCommand.SignUp.class);
+            User domainUser = mock(User.class);
 
-            when(signUpCommand.getId()).thenReturn(userId);
-            when(userService.getUser(userId)).thenReturn(mock(UserInfo.User.class));
+            when(signUpCommand.toDomainUser()).thenReturn(domainUser);
+            when(userService.signUpUser(domainUser)).thenThrow(new CoreException(ErrorType.CONFLICT, "이미 등록된 회원입니다."));
 
-            //when, then
+            // when & then
             Assertions.assertThatThrownBy(() -> userFacade.signUpUser(signUpCommand))
                     .isInstanceOf(CoreException.class)
                     .hasMessageContaining("이미 등록된 회원입니다.")
@@ -106,20 +105,17 @@ class UserFacadeTest {
             UserInfo.User newUser = UserInfo.User.of(
                     userId, "hoyongeom", "hoyongeom@gmail.com", "010-1234-5678", "2025-04-20", "M"
             );
-            AppUserResult.User expectedUser = AppUserResult.User.of(
+            UserResult.User expectedUser = UserResult.User.of(
                     userId, "hoyongeom", "hoyongeom@gmail.com", "010-1234-5678", "2025-04-20", "M"
             );
 
-            AppUserCommand.SignUp signUpCommand = mock(AppUserCommand.SignUp.class);
+            UserCommand.SignUp signUpCommand = mock(UserCommand.SignUp.class);
 
-            when(signUpCommand.getId()).thenReturn(userId);
             when(signUpCommand.toDomainUser()).thenReturn(mockUser);
-            when(userService.getUser(userId)).thenReturn(null);
             when(userService.signUpUser(mockUser)).thenReturn(newUser);
 
             //when
-            AppUserResult.User result = userFacade.signUpUser(signUpCommand);
-
+            UserResult.User result = userFacade.signUpUser(signUpCommand);
 
             //then
             assertAll(

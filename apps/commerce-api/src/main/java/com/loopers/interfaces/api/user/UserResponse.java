@@ -1,6 +1,6 @@
 package com.loopers.interfaces.api.user;
 
-import com.loopers.application.user.AppUserResult;
+import com.loopers.application.user.UserResult;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -37,7 +37,7 @@ public class UserResponse {
         }
 
 
-        public static UserResponse.User from(AppUserResult.User user) {
+        public static UserResponse.User from(UserResult.User user) {
             return UserResponse.User.of(
                     user.getId(),
                     user.getName(),

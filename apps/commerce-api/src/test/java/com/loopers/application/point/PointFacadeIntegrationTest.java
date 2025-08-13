@@ -1,7 +1,6 @@
 package com.loopers.application.point;
 
-import com.loopers.application.user.AppUserCommand;
-import com.loopers.application.user.AppUserResult;
+import com.loopers.domain.point.Point;
 import com.loopers.domain.point.PointRepository;
 import com.loopers.domain.user.Gender;
 import com.loopers.domain.user.User;
@@ -59,14 +58,16 @@ class PointFacadeIntegrationTest {
             String birthDate = "1994-04-20";
             String gender = "M";
 
-            userService.signUpUser(User.of(
+            pointRepository.save(Point.create(id, 0L));
+
+            userService.signUpUser(User.create(
                     id, password, userName, email, phoneNumber, birthDate, Gender.from(gender)
             ));
 
             pointFacade.charge(id, 100L);
 
             //when
-            AppPointResult.Point result = pointFacade.getPoint(id);
+            PointResult.Point result = pointFacade.getPoint(id);
 
             //then
             Assertions.assertThat(result.getPoint()).isEqualTo(100L);
@@ -91,7 +92,7 @@ class PointFacadeIntegrationTest {
             //when & then
             assertThatThrownBy( () -> pointFacade.charge(id, chargeAmount))
                     .isInstanceOf(CoreException.class)
-                    .hasMessage("존재하지 않는 회원입니다.");
+                    .hasMessage("존재하지 않는 사용자입니다.");
 
         }
         

@@ -2,7 +2,12 @@ package com.loopers.infrastructure.like;
 
 import com.loopers.domain.like.Like;
 import com.loopers.domain.like.LikeRepository;
+import com.loopers.support.error.CoreException;
+import com.loopers.support.error.ErrorType;
+import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -42,5 +47,14 @@ public class LikeRepositoryImpl implements LikeRepository {
     @Override
     public List<Like> findAllByUserId(String userId) {
         return likeJpaRepository.findAllByUserId(userId);
+    }
+
+    @Override
+    public Long deleteByUserIdAndProductId(String userId, Long productId) {
+        try {
+            return likeJpaRepository.deleteByUserIdAndProductId(userId, productId);
+        } catch(ObjectOptimisticLockingFailureException | OptimisticLockException e) {
+            throw new CoreException(ErrorType.CONFLICT, "좋아요 삭제 충돌이 발생했습니다.");
+        }
     }
 }

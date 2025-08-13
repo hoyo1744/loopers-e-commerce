@@ -48,13 +48,13 @@ class OrderServiceIntegrationTest {
             );
 
             // when
-            OrderInfo.Order result = orderService.createOrder(command);
+            Order result = orderService.createOrder(command);
 
             // then
             assertThat(result.getUserId()).isEqualTo("user123");
             assertThat(result.getTotalPrice()).isEqualTo(3500L);
-            assertThat(result.getOrderProducts().getOrderProducts()).hasSize(2);
-            assertThat(result.getOrderStatus()).isEqualTo("PENDING");
+            assertThat(result.getOrderProducts()).hasSize(2);
+            assertThat(result.getOrderStatus()).isEqualTo(OrderStatus.PENDING);
         }
 
         @Test
@@ -66,7 +66,7 @@ class OrderServiceIntegrationTest {
             )));
 
             // when
-            orderService.updateOrderStatus(OrderCommand.OrderStatus.of(order.getId(), OrderStatus.COMPLETE.getValue()));
+            orderService.pay(OrderCommand.OrderStatus.of(order.getId(), OrderStatus.COMPLETE.getValue()));
 
             // then
             Order updated = orderRepository.findById(order.getId());

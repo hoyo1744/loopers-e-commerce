@@ -46,7 +46,7 @@ public class User {
         this.gender = gender;
     }
 
-    public static User of(String userId, String password, String userName, String email, String phoneNumber, String birthDate, Gender gender) {
+    public static User create(String userId, String password, String userName, String email, String phoneNumber, String birthDate, Gender gender) {
         validateUserId(userId);
         validatePassword(password);
         validateUserName(userName);

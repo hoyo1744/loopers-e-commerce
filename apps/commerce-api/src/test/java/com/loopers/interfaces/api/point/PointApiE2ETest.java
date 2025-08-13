@@ -1,8 +1,10 @@
 package com.loopers.interfaces.api.point;
 
 import com.loopers.application.point.PointFacade;
-import com.loopers.application.user.AppUserCommand;
+import com.loopers.application.user.UserCommand;
 import com.loopers.application.user.UserFacade;
+import com.loopers.domain.point.Point;
+import com.loopers.domain.point.PointRepository;
 import com.loopers.interfaces.api.ApiResponse;
 import com.loopers.utils.DatabaseCleanUp;
 import org.junit.jupiter.api.*;
@@ -29,6 +31,9 @@ class PointApiE2ETest {
     @Autowired
     private UserFacade userFacade;
 
+    @Autowired
+    private PointRepository pointRepository;
+
     @AfterEach
     void tearDown() {
         databaseCleanUp.truncateAllTables();
@@ -54,13 +59,12 @@ class PointApiE2ETest {
             String phoneNumber = "010-1234-5678";
             String birthDate = "1994-04-20";
             String gender = "M";
+            Long chargeAmount = 1000L;
 
-            userFacade.signUpUser(AppUserCommand.SignUp.of(
+            userFacade.signUpUser(UserCommand.SignUp.of(
                     id, password, userName, email, phoneNumber, birthDate, gender
             ));
-
-            Long chargeAmount = 1000L;
-            pointFacade.charge(id, chargeAmount);
+            pointRepository.save(Point.create(id, chargeAmount));
 
             String requestUrl = "/api/v1/points";
 
@@ -122,9 +126,13 @@ class PointApiE2ETest {
             String birthDate = "1994-04-20";
             String gender = "M";
 
-            userFacade.signUpUser(AppUserCommand.SignUp.of(
+            pointRepository.save(Point.create(id, 0L));
+
+            userFacade.signUpUser(UserCommand.SignUp.of(
                     id, password, userName, email, phoneNumber, birthDate, gender
             ));
+
+
 
             Long chargeAmount = 1000L;
             String requestUrl = "/api/v1/points/charge";

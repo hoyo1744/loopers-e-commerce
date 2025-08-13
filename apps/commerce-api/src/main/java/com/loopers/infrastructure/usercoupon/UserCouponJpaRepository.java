@@ -1,0 +1,11 @@
+package com.loopers.infrastructure.usercoupon;
+
+import com.loopers.domain.usercoupon.UserCoupon;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.Optional;
+
+public interface UserCouponJpaRepository extends JpaRepository<UserCoupon, Long> {
+
+    Optional<UserCoupon> findByUserIdAndCouponId(String userId, Long couponId);
+}
