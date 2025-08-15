@@ -11,7 +11,14 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "product")
+@Table(
+        name = "product",
+        indexes = {
+                @Index(name = "idx_product_created_at_id", columnList = "created_at, id"),
+                @Index(name = "idx_product_price_id", columnList = "price, id"),
+                @Index(name = "idx_product_like_count_id", columnList = "like_count, id")
+        }
+)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Product extends BaseEntity {
 
@@ -27,11 +34,14 @@ public class Product extends BaseEntity {
 
     private Long price;
 
+    private Long likeCount;
+
     @Builder
-    private Product(Long brandId, String name, Long price) {
+    private Product(Long brandId, String name, Long price, Long likeCount) {
         this.brandId = brandId;
         this.name = name;
         this.price = price;
+        this.likeCount = likeCount;
     }
 
     public static Product create(Long brandId, String name, Long price) {
@@ -43,6 +53,7 @@ public class Product extends BaseEntity {
                 .brandId(brandId)
                 .name(name)
                 .price(price)
+                .likeCount(0L)
                 .build();
     }
 
