@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -18,25 +19,22 @@ public class LikeService {
         return likeRepository.existsByUserIdAndProductId(command.getUserId(), command.getProductId());
     }
 
+    public Set<Long> getLikedProductIds(LikeCommand.LikeProducts command) {
+        return likeRepository.findLikedProductIds(command.getUserId(), command.getProductIds());
+    }
+
+
     public Long countLikes(Long productId) {
         return likeRepository.countByProductId(productId);
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public boolean likeProduct(LikeCommand.Like command) {
+    public void likeProduct(LikeCommand.Like command) {
         Like like = Like.create(command.getUserId(), command.getProductId());
-        try {
-            likeRepository.save(like);
-            return true;
-        } catch (DataIntegrityViolationException e) {
-            return false;
-        }
+        likeRepository.insertIfNotExists(like.getUserId(), like.getProductId());
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public boolean unLikeProduct(LikeCommand.Unlike command) {
-        Long affected = likeRepository.deleteByUserIdAndProductId(command.getUserId(), command.getProductId());
-        return affected > 0;
+    public void unLikeProduct(LikeCommand.Unlike command) {
+        likeRepository.deleteByUserIdAndProductId(command.getUserId(), command.getProductId());
     }
 
     public List<LikeInfo.LikeProduct> getLikeProduct(String userId) {

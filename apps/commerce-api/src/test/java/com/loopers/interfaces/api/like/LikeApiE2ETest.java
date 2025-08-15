@@ -65,12 +65,12 @@ class LikeApiE2ETest {
     @Nested
     public class Like {
         /**
-         * - [O]  상품 좋아요 등록시, 이미 좋아요가 등록되어 있다면, 200 OK 와 Product already liked. 메시지가 전달된다.
+         * - [O]  상품 좋아요 등록시, 이미 좋아요가 등록있어도 , 200 OK 와 Product liked successfully. 메시지가 전달된다.
          * - [O]  상품 좋아요 등록시, 좋아요가 등록되지 않았다면, 200 OK 와 Product liked successfully.메시지가 전달된다.
          */
 
         @Test
-        @DisplayName("상품 좋아요 등록시, 이미 좋아요가 등록되어 있다면, 200 OK 와 Product already liked. 메시지가 전달된다.")
+        @DisplayName("상품 좋아요 등록시, 이미 좋아요가 등록되어 있어도, 200 OK 와 Product liked successfully. 메시지가 전달된다.")
         public void return_200OkWithAlreadyLikeMessage_whenLikeProductLike() throws Exception{
             //given
             String userId = "test";
@@ -89,7 +89,7 @@ class LikeApiE2ETest {
             //then
             Assertions.assertAll(
                     () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
-                    () -> assertThat(response.getBody().data()).isEqualTo("Product already liked.")
+                    () -> assertThat(response.getBody().data()).isEqualTo("Product liked successfully.")
             );
         }
 
@@ -150,7 +150,7 @@ class LikeApiE2ETest {
         }
 
         @Test
-        @DisplayName("상품 좋아요 취소시, 좋아요가 등록되지 않았다면, 200 OK 와 Product already unliked.메시지가 전달된다.")
+        @DisplayName("상품 좋아요 취소시, 좋아요가 등록되지 않았아도, 200 OK 와 Product unliked successfully..메시지가 전달된다.")
         public void return_200OKWithSuccessMessage_whenUnlikeProduct() throws Exception{
             //given
             String userId = "test";
@@ -167,7 +167,7 @@ class LikeApiE2ETest {
             //then
             Assertions.assertAll(
                     () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
-                    () -> assertThat(response.getBody().data()).isEqualTo("Product not liked yet.")
+                    () -> assertThat(response.getBody().data()).isEqualTo("Product unliked successfully.")
             );
         }
 

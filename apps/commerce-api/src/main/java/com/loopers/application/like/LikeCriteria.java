@@ -1,5 +1,6 @@
 package com.loopers.application.like;
 
+import com.loopers.domain.product.ProductCommand;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -22,6 +23,10 @@ public class LikeCriteria {
                     .productId(productId)
                     .build();
         }
+
+        public ProductCommand.Product toProductCommand() {
+            return ProductCommand.Product.of(productId);
+        }
     }
 
     @Getter
@@ -40,6 +45,10 @@ public class LikeCriteria {
                     .userId(userId)
                     .productId(productId)
                     .build();
+        }
+
+        public ProductCommand.Product toProductCommand() {
+            return ProductCommand.Product.of(productId);
         }
     }
 

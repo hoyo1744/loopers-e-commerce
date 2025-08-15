@@ -20,18 +20,16 @@ public class LikeV1Controller implements LikeV1ApiSpec{
     public ApiResponse<String> likeProduct(
             @RequestHeader(value = "X-USER-ID", required = true) String userId,
             @PathVariable Long productId) {
-        Boolean content = likeFacade.likeProduct(LikeCriteria.Like.of(userId, productId));
-        String message = content ? "Product liked successfully." : "Product already liked.";
-        return ApiResponse.success(message);
+        likeFacade.likeProduct(LikeCriteria.Like.of(userId, productId));
+        return ApiResponse.success("Product liked successfully.");
     }
 
     @DeleteMapping("/products/{productId}")
     public ApiResponse<String> unlikeProduct(
             @RequestHeader(value = "X-USER-ID", required = true) String userId,
             @PathVariable Long productId) {
-        Boolean content = likeFacade.unlikeProduct(LikeCriteria.Unlike.of(userId, productId));
-        String message = content ? "Product unliked successfully." : "Product not liked yet.";
-        return ApiResponse.success(message);
+        likeFacade.unlikeProduct(LikeCriteria.Unlike.of(userId, productId));
+        return ApiResponse.success("Product unliked successfully.");
     }
 
     @GetMapping("/products")

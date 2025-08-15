@@ -28,7 +28,14 @@ public class ProductService {
                 }).toList();
 
         return ProductInfo.OrderProducts.of(orderProductList);
+    }
 
+    public void increaseLikeCount(ProductCommand.Product product) {
+        productRepository.increaseLikeCount(product.getProductId());
+    }
+
+    public void decreaseLikeCount(ProductCommand.Product product) {
+        productRepository.decreaseLikeCount(product.getProductId());
     }
 
 }

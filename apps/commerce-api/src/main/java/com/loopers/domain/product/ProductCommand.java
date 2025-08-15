@@ -61,4 +61,18 @@ public class ProductCommand {
         }
     }
 
+    @Getter
+    @Builder
+    public static class Product{
+        private Long productId;
+
+        private Product(Long productId) {
+            this.productId = productId;
+        }
+
+        public static Product of(Long productId) {
+            return Product.builder().productId(productId).build();
+        }
+    }
+
 }

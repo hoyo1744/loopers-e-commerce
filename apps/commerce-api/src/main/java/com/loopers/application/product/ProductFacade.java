@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
@@ -38,15 +39,20 @@ public class ProductFacade {
                 request.getSize()
         ));
 
+        List<Long> productIds = products.stream()
+                .map(ProductInfo.ProductQuery::getProductId)
+                .toList();
+
+        Set<Long> likedProductIds = likeService.getLikedProductIds(LikeCommand.LikeProducts.of(request.getUserId(), productIds));
+
         return products.stream()
                 .map(product -> {
-                    Boolean liked = likeService.isLiked(LikeCommand.Check.of(request.getUserId(), product.getProductId()));
                     return ProductResult.Product.of(
                             product.getProductName(),
                             product.getPrice(),
                             product.getCreatedAt(),
                             ProductResult.Brand.of(product.getBrandName()),
-                            ProductResult.Like.of(liked, product.getLikes())
+                            ProductResult.Like.of(likedProductIds.contains(product.getProductId()), product.getLikes())
                     );
                 }).toList();
 

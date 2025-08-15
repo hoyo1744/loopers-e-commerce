@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -17,6 +18,8 @@ public class ProductRepositoryImpl implements ProductRepository {
     private final ProductJpaRepository productJpaRepository;
 
     private final ProductQueryDslRepository productQueryDslRepository;
+
+    private final ProductCacheRepository productCacheRepository;
 
     @Override
     public List<Product> findAll() {
@@ -37,6 +40,24 @@ public class ProductRepositoryImpl implements ProductRepository {
 
     @Override
     public List<ProductInfo.ProductQuery> search(ProductCommand.Search command) {
-        return productQueryDslRepository.search(command);
+        Optional<List<ProductInfo.ProductQuery>> cached = productCacheRepository.getCachedProductList(command);
+        if(cached.isPresent()) {
+            return cached.get();
+        }
+        List<ProductInfo.ProductQuery> result
+                = productQueryDslRepository.search(command);
+        productCacheRepository.putCachedProductList(command, result);
+
+        return result;
+    }
+
+    @Override
+    public void increaseLikeCount(Long id) {
+        productJpaRepository.increaseLikeCount(id);
+    }
+
+    @Override
+    public void decreaseLikeCount(Long id) {
+        productJpaRepository.decreaseLikeCount(id);
     }
 }
