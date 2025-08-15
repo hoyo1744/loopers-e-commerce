@@ -12,4 +12,7 @@ public interface ProductRepository {
 
     List<ProductInfo.ProductQuery> search(ProductCommand.Search command);
 
+    void increaseLikeCount(Long id);
+
+    void decreaseLikeCount(Long id);
 }
