@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Repository
 @RequiredArgsConstructor
@@ -30,18 +31,8 @@ public class LikeRepositoryImpl implements LikeRepository {
     }
 
     @Override
-    public Optional<Like> findByUserIdAndProductId(String userId, Long productId) {
-        return likeJpaRepository.findByUserIdAndProductId(userId, productId);
-    }
-
-    @Override
     public Like save(Like like) {
         return likeJpaRepository.save(like);
-    }
-
-    @Override
-    public void delete(String userId, Long productId) {
-        likeJpaRepository.deleteByUserIdAndProductId(userId, productId);
     }
 
     @Override
@@ -51,10 +42,16 @@ public class LikeRepositoryImpl implements LikeRepository {
 
     @Override
     public Long deleteByUserIdAndProductId(String userId, Long productId) {
-        try {
-            return likeJpaRepository.deleteByUserIdAndProductId(userId, productId);
-        } catch(ObjectOptimisticLockingFailureException | OptimisticLockException e) {
-            throw new CoreException(ErrorType.CONFLICT, "좋아요 삭제 충돌이 발생했습니다.");
-        }
+        return likeJpaRepository.deleteByUserIdAndProductId(userId, productId);
+    }
+
+    @Override
+    public Integer insertIfNotExists(String userId, Long productId) {
+        return likeJpaRepository.insertIfNotExists(userId, productId);
+    }
+
+    @Override
+    public Set<Long> findLikedProductIds(String userId, List<Long> productIds) {
+        return likeJpaRepository.findLikedProductIds(userId, productIds);
     }
 }
