@@ -13,6 +13,7 @@ import com.loopers.domain.stock.StockService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.UnexpectedRollbackException;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -28,17 +29,23 @@ public class LikeFacade {
 
     private final BrandService brandService;
 
+    @Transactional
     public Boolean likeProduct(LikeCriteria.Like like) {
         try {
-            return likeService.likeProduct(LikeCommand.Like.of(like.getUserId(), like.getProductId()));
+            productService.increaseLikeCount(like.toProductCommand());
+            likeService.likeProduct(LikeCommand.Like.of(like.getUserId(), like.getProductId()));
+            return true;
         } catch (UnexpectedRollbackException ex) {
             return false;
         }
     }
 
+    @Transactional
     public Boolean unlikeProduct(LikeCriteria.Unlike unlike) {
         try {
-            return likeService.unLikeProduct(LikeCommand.Unlike.of(unlike.getUserId(), unlike.getProductId()));
+            productService.decreaseLikeCount(unlike.toProductCommand());
+            likeService.unLikeProduct(LikeCommand.Unlike.of(unlike.getUserId(), unlike.getProductId()));
+            return true;
         } catch (UnexpectedRollbackException ex) {
             return false;
         }
