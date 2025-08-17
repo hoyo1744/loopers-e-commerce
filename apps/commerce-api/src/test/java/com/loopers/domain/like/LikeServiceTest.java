@@ -1,5 +1,6 @@
 package com.loopers.domain.like;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -7,13 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.List;
-import java.util.Optional;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -83,33 +78,31 @@ class LikeServiceTest {
     class LikeProduct {
 
         @Test
-        @DisplayName("좋아요 추가에 성공하면 true를 반환한다.")
-        void shouldReturnTrueOnSuccess() {
+        @DisplayName("좋아요 추가에 성공하면 아무런 예외도 발생하지 않는다.")
+        void doesNotThrow_whenLikeSuccess() {
             // given
             Like like = Like.create("user1", 100L);
             LikeCommand.Like command = LikeCommand.Like.of("user1", 100L);
-            when(likeRepository.save(any(Like.class))).thenReturn(like);
+            when(likeRepository.insertIfNotExists("user1", 100L)).thenReturn(0);
 
-            // when
-            boolean result = likeService.likeProduct(command);
-
-            // then
-            assertThat(result).isTrue();
+            // when & then
+            Assertions.assertThatCode( () -> likeService.likeProduct(command))
+                    .doesNotThrowAnyException();
         }
 
         @Test
-        @DisplayName("좋아요가 중복되어 예외가 발생하면 false를 반환한다.")
-        void shouldReturnFalseOnDuplicate() {
+        @DisplayName("좋아요가 중복되어도 아무런 예외가 발생하지 않는다.")
+        void throwDataIntegrityViolationException_whenLikeDuplicated() {
             // given
             LikeCommand.Like command = LikeCommand.Like.of("user1", 100L);
-            when(likeRepository.save(any(Like.class)))
-                    .thenThrow(new org.springframework.dao.DataIntegrityViolationException("중복"));
+            when(likeRepository.insertIfNotExists("user1", 100L)).thenReturn(0);
 
             // when
-            boolean result = likeService.likeProduct(command);
+            Assertions.assertThatCode( () -> likeService.likeProduct(command))
+                    .doesNotThrowAnyException();
 
             // then
-            assertThat(result).isFalse();
+            verify(likeRepository, times(1)).insertIfNotExists("user1", 100L);
         }
     }
 
@@ -118,8 +111,8 @@ class LikeServiceTest {
     class UnLikeProduct {
 
         @Test
-        @DisplayName("좋아요 해제가 정상적으로 되면 true를 반환한다.")
-        void shouldReturnTrueWhenDeleted() {
+        @DisplayName("좋아요 해제가 정상적으로 되면 아무런 예외도 발생하지 않는다.")
+        void doesNotThrow_whenUnlikeSuccess() {
             // given
             String userId = "user123";
             Long productId = 1L;
@@ -128,16 +121,16 @@ class LikeServiceTest {
             when(likeRepository.deleteByUserIdAndProductId(userId, productId)).thenReturn(1L);
 
             // when
-            boolean result = likeService.unLikeProduct(command);
+            Assertions.assertThatCode( () -> likeService.unLikeProduct(command))
+                    .doesNotThrowAnyException();
 
             // then
-            assertThat(result).isTrue();
             verify(likeRepository).deleteByUserIdAndProductId(userId, productId);
         }
 
         @Test
-        @DisplayName("좋아요 해제 대상이 없으면 false를 반환한다.")
-        void shouldReturnFalseWhenNotDeleted() {
+        @DisplayName("좋아요 해제 대상 존재하지 않는다면 아무런 예외도 발생하지 않는다.(멱등)")
+        void doesNotThrow_whenUnlikeTargetIsEmpty() {
             // given
             String userId = "user123";
             Long productId = 1L;
@@ -146,10 +139,10 @@ class LikeServiceTest {
             when(likeRepository.deleteByUserIdAndProductId(userId, productId)).thenReturn(0L);
 
             // when
-            boolean result = likeService.unLikeProduct(command);
+            Assertions.assertThatCode( () -> likeService.unLikeProduct(command))
+                    .doesNotThrowAnyException();
 
             // then
-            assertThat(result).isFalse();
             verify(likeRepository).deleteByUserIdAndProductId(userId, productId);
         }
     }

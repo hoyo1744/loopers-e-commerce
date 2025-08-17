@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ProductTest {
 
-    @DisplayName("Product 도메인 테스트")
+    @DisplayName("Product 도메인 생성 테스트")
     @Nested
     public class Create {
 
@@ -100,5 +100,4 @@ class ProductTest {
             assertThat(exception.getMessage()).contains("상품 가격");
         }
     }
-
 }

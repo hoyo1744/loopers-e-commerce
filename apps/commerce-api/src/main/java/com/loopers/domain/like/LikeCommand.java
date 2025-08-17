@@ -3,6 +3,8 @@ package com.loopers.domain.like;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.util.List;
+
 public class LikeCommand {
 
     @Getter
@@ -55,6 +57,25 @@ public class LikeCommand {
             return Check.builder()
                     .userId(userId)
                     .productId(productId)
+                    .build();
+        }
+    }
+
+    @Getter
+    @Builder
+    public static class LikeProducts {
+        private String userId;
+        private List<Long> productIds;
+
+        private LikeProducts(String userId, List<Long> productIds) {
+            this.userId = userId;
+            this.productIds = productIds;
+        }
+
+        public static LikeProducts of(String userId, List<Long> productIds) {
+            return LikeProducts.builder()
+                    .userId(userId)
+                    .productIds(productIds)
                     .build();
         }
     }
