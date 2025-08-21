@@ -13,6 +13,7 @@ public class OrderCommand {
         String userId;
         OrderProducts orderProducts;
 
+
         private Order(String userId, OrderProducts orderProducts) {
             this.userId = userId;
             this.orderProducts = orderProducts;
@@ -29,17 +30,17 @@ public class OrderCommand {
     @Getter
     @Builder
     public static class OrderStatus {
-        private Long orderId;
+        private String orderNumber;
         private String status;
 
-        private OrderStatus(Long orderId, String status) {
-            this.orderId = orderId;
+        private OrderStatus(String orderNumber, String status) {
+            this.orderNumber = orderNumber;
             this.status = status;
         }
 
-        public static OrderCommand.OrderStatus of(Long orderId, String status) {
+        public static OrderCommand.OrderStatus of(String orderNumber, String status) {
             return OrderStatus.builder()
-                    .orderId(orderId)
+                    .orderNumber(orderNumber)
                     .status(status)
                     .build();
         }

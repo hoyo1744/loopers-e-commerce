@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/orders")
-public class OrderV1Controller {
+public class OrderV1Controller implements OrderV1ApiSpec{
 
     private final OrderFacade orderFacade;
 
@@ -23,9 +23,8 @@ public class OrderV1Controller {
             @RequestHeader(value = "X-USER-ID", required = true) String userId,
             @RequestBody OrderRequest.Order order) {
 
-        orderFacade.order(OrderCriteria.Order.of(userId, order.getOrderProducts().stream()
-                .map(op -> OrderCriteria.OrderProduct.of(op.getProductId(), op.getQuantity()))
-                .collect(Collectors.toList()), order.getCouponId()));
+        orderFacade.order(order.toOrderCriteria(userId));
+
         return ApiResponse.success();
     }
 

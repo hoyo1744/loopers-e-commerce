@@ -31,6 +31,11 @@ public class OrderRepositoryImpl implements OrderRepository {
     }
 
     @Override
+    public Order findByOrderNumber(String orderNumber) {
+        return orderJpaRepository.findByOrderNumber(orderNumber);
+    }
+
+    @Override
     public List<OrderProduct> findOrderProductsByOrderId(Long orderId) {
         return orderProductJpaRepository.findOrderProductsByOrderId(orderId);
     }
