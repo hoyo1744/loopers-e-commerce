@@ -5,6 +5,9 @@ import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
+import com.loopers.support.error.PgServiceRetryException;
+import com.loopers.support.error.PgServiceUnavailableException;
+import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -134,6 +137,21 @@ public class ApiControllerAdvice {
     @ExceptionHandler
     public ResponseEntity<ApiResponse<?>> handleNotFound(NoResourceFoundException e) {
         return failureResponse(ErrorType.NOT_FOUND, null);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<ApiResponse<?>> handlePgRetryException(PgServiceRetryException e) {
+        return failureResponse(ErrorType.PG_INTERNAL_ERROR, e.getMessage());
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<ApiResponse<?>> handlePgUnAvailableException(PgServiceUnavailableException e) {
+        return failureResponse(ErrorType.PG_INTERNAL_ERROR, e.getMessage());
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<ApiResponse<?>> handleCircuitException(CallNotPermittedException e) {
+        return failureResponse(ErrorType.CC_INTERNAL_ERROR, e.getMessage());
     }
 
     @ExceptionHandler
