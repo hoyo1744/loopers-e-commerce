@@ -66,7 +66,7 @@ class OrderServiceIntegrationTest {
             )));
 
             // when
-            orderService.pay(OrderCommand.OrderStatus.of(order.getId(), OrderStatus.COMPLETE.getValue()));
+            orderService.complete(order.getOrderNumber());
 
             // then
             Order updated = orderRepository.findById(order.getId());
@@ -87,7 +87,7 @@ class OrderServiceIntegrationTest {
 
             // then
             assertThat(detail.getOrderId()).isEqualTo(order.getId());
-            assertThat(detail.getOrderProducts().getOrderProducts()).hasSize(1);
+            assertThat(detail.getOrderProducts().getOrderProductDtos()).hasSize(1);
             assertThat(detail.getOrderStatus()).isEqualTo("PENDING");
         }
 

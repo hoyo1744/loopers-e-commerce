@@ -22,7 +22,6 @@ import com.loopers.domain.usercoupon.UserCouponStatus;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 import com.loopers.utils.DatabaseCleanUp;
-import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -101,7 +100,7 @@ class OrderFacadeIntegrationTest {
         @DisplayName("주문 상품 리스트가 비어있을 경우 BAD_REQUEST 예외가 발생한다.")
         void throwBadRequest_whenOrderProductListIsEmpty() {
             // given
-            OrderCriteria.Order order = OrderCriteria.Order.of(userId, List.of(), 1L);
+            OrderCriteria.Order order = OrderCriteria.Order.ofPoint(userId, List.of(), 1L);
 
             // when
             CoreException ex = assertThrows(CoreException.class, () -> {
@@ -117,7 +116,7 @@ class OrderFacadeIntegrationTest {
         @DisplayName("로그인되지 않은 사용자의 주문 시 404 Not Found 예외가 발생한다.")
         void throwUnauthorized_whenUserIdIsNull() {
             // given
-            OrderCriteria.Order order = OrderCriteria.Order.of(null, List.of(
+            OrderCriteria.Order order = OrderCriteria.Order.ofPoint(null, List.of(
                     OrderCriteria.OrderProduct.of(1L, 1L)
             ), 1L);
 
@@ -154,7 +153,7 @@ class OrderFacadeIntegrationTest {
             stockRepository.save(Stock.create(product.getId(), 1L));
             pointRepository.save(Point.create(user.getId(), 5000L));
 
-            OrderCriteria.Order order = OrderCriteria.Order.of(user.getId(), List.of(
+            OrderCriteria.Order order = OrderCriteria.Order.ofPoint(user.getId(), List.of(
                     OrderCriteria.OrderProduct.of(product.getId(), 5L)
             ), coupon.getId());
 
@@ -190,7 +189,7 @@ class OrderFacadeIntegrationTest {
             stockRepository.save(Stock.create(product.getId(), 10L));
             pointRepository.save(Point.create(user.getId(), 5000L));
 
-            OrderCriteria.Order order = OrderCriteria.Order.of(user.getId(), List.of(
+            OrderCriteria.Order order = OrderCriteria.Order.ofPoint(user.getId(), List.of(
                     OrderCriteria.OrderProduct.of(product.getId(), 1L)
             ), userCoupon.getCouponId());
 
@@ -241,7 +240,7 @@ class OrderFacadeIntegrationTest {
             UserCouponRepository.save(UserCoupon.create(userId, coupon.getId()));
 
 
-            OrderCriteria.Order order = OrderCriteria.Order.of(userId, List.of(
+            OrderCriteria.Order order = OrderCriteria.Order.ofPoint(userId, List.of(
                     OrderCriteria.OrderProduct.of(product.getId(), 2L)
             ), coupon.getId());
             orderFacade.order(order);
@@ -283,7 +282,7 @@ class OrderFacadeIntegrationTest {
             stockRepository.save(Stock.create(product.getId(), 10L));
             pointRepository.save(Point.create(user.getId(), 5000L));
 
-            OrderCriteria.Order order = OrderCriteria.Order.of(user.getId(), List.of(
+            OrderCriteria.Order order = OrderCriteria.Order.ofPoint(user.getId(), List.of(
                     OrderCriteria.OrderProduct.of(product.getId(), 1L)
             ), userCoupon.getCouponId());
             orderFacade.order(order);
@@ -421,7 +420,7 @@ class OrderFacadeIntegrationTest {
                     .mapToObj(i -> CompletableFuture.supplyAsync(() -> {
                         try {
                             start.await();
-                            OrderCriteria.Order request = OrderCriteria.Order.of(
+                            OrderCriteria.Order request = OrderCriteria.Order.ofPoint(
                                     userId,
                                     products.stream()
                                             .map(p -> OrderCriteria.OrderProduct.of(p.getId(), quantityPerItem))
@@ -484,7 +483,7 @@ class OrderFacadeIntegrationTest {
                         ready.countDown();
                         start.await();
 
-                        OrderCriteria.Order request = OrderCriteria.Order.of(
+                        OrderCriteria.Order request = OrderCriteria.Order.ofPoint(
                                 userId,
                                 List.of(OrderCriteria.OrderProduct.of(product.getId(), quantityPerOrder)),
                                 null
@@ -516,7 +515,7 @@ class OrderFacadeIntegrationTest {
 
 
         private OrderCriteria.Order orderOf(String userId, Long productId, long qty, Long couponId) {
-            return OrderCriteria.Order.of(
+            return OrderCriteria.Order.ofPoint(
                     userId,
                     List.of(OrderCriteria.OrderProduct.of(productId, qty)),
                     couponId
