@@ -13,6 +13,13 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:${project.properties["springDocOpenApiVersion"]}")
 
+    // openfeign
+    implementation("org.springframework.cloud:spring-cloud-starter-openfeign")
+
+    // resilience4j
+    implementation("io.github.resilience4j:resilience4j-spring-boot3")
+    implementation("org.springframework.boot:spring-boot-starter-aop")
+
     // querydsl
     implementation("com.querydsl:querydsl-jpa:$querydslVersion:jakarta")
     annotationProcessor("com.querydsl:querydsl-apt:$querydslVersion:jakarta")
@@ -25,6 +32,11 @@ dependencies {
     // test-fixtures
     testImplementation(testFixtures(project(":modules:jpa")))
     testImplementation(testFixtures(project(":modules:redis")))
+
+    testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
+
+
+
 
 }
 
