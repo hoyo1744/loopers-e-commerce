@@ -25,9 +25,9 @@ public class OrderService {
         return orderRepository.save(order);
     }
 
-    public void pay(OrderCommand.OrderStatus command) {
-        Order order = orderRepository.findById(command.getOrderId());
-        order.updateOrderStatus(OrderStatus.from(command.getStatus()));
+    public void complete(String orderNumber) {
+        Order order = orderRepository.findByOrderNumber(orderNumber);
+        order.updateOrderStatus(OrderStatus.COMPLETE);
     }
 
     public OrderInfo.OrderDetail getOrderDetail(OrderCommand.OrderDetail command) {
@@ -41,7 +41,7 @@ public class OrderService {
                 order.getOrderStatus().getValue(),
                 OrderInfo.OrderProducts.of(
                         orderProductsByOrderId.stream()
-                                .map(orderProduct -> OrderInfo.OrderProduct.of(
+                                .map(orderProduct -> OrderInfo.OrderProductDto.of(
                                         orderProduct.getProductId(),
                                         orderProduct.getQuantity(),
                                         orderProduct.getPrice()))
@@ -61,7 +61,7 @@ public class OrderService {
                                 order.getTotalPrice(),
                                 OrderInfo.OrderProducts.of(
                                         order.getOrderProducts().stream()
-                                                .map(orderProduct -> OrderInfo.OrderProduct.of(
+                                                .map(orderProduct -> OrderInfo.OrderProductDto.of(
                                                         orderProduct.getProductId(),
                                                         orderProduct.getQuantity(),
                                                         orderProduct.getPrice()))
@@ -70,5 +70,11 @@ public class OrderService {
                                 order.getOrderStatus().getValue()
                         )).toList()
         );
+    }
+
+    public OrderInfo.OrderProducts getOrderProducts(String orderNumber) {
+        Order order = orderRepository.findByOrderNumber(orderNumber);
+        return OrderInfo.OrderProducts.from(order.getOrderProducts());
+
     }
 }

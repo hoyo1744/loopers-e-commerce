@@ -4,5 +4,7 @@ public interface PaymentRepository {
 
     Payment findById(Long id);
 
+    Payment findByOrderNumber(String orderNumber);
+
     Payment save(Payment payment);
 }

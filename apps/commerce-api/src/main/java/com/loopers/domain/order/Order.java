@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Getter
@@ -22,6 +23,8 @@ public class Order {
     @Column(name = "order_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    private String orderNumber;
 
     private String userId;
 
@@ -37,8 +40,9 @@ public class Order {
     private List<OrderProduct> orderProducts = new ArrayList<>();
 
     @Builder
-    private Order(String userId, OrderStatus orderStatus, Long totalPrice, List<OrderProduct> orderProducts) {
+    private Order(String userId, String orderNumber, OrderStatus orderStatus, Long totalPrice, List<OrderProduct> orderProducts) {
         this.userId = userId;
+        this.orderNumber = orderNumber;
         this.orderStatus = orderStatus;
         this.totalPrice = totalPrice;
         this.orderProducts = orderProducts;
@@ -59,6 +63,7 @@ public class Order {
 
         Order order = Order.builder()
                 .userId(userId)
+                .orderNumber(UUID.randomUUID().toString())
                 .orderStatus(OrderStatus.PENDING)
                 .totalPrice(0L) // 임시 값
                 .orderProducts(new ArrayList<>())

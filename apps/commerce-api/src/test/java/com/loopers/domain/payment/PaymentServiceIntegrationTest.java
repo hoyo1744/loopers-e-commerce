@@ -9,6 +9,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.UUID;
+
 import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest
@@ -39,10 +41,11 @@ class PaymentServiceIntegrationTest {
             Long orderId = 1L;
             Long amount = 10000L;
 
-            PaymentCommand.Pay command = PaymentCommand.Pay.of(amount, orderId);
+            PaymentCommand.Pay command = PaymentCommand.Pay.ofPoint(amount, orderId, UUID.randomUUID().toString());
 
             // when
-            PaymentInfo.Payment pay = paymentService.pay(command);
+            PaymentInfo.Payment pay = paymentService.create(command);
+            paymentService.pay(command.getOrderNumber());
 
             // then
             Payment saved = paymentRepository.findById(pay.getPaymentId());
@@ -55,10 +58,10 @@ class PaymentServiceIntegrationTest {
         @DisplayName("결제 금액이 null 또는 0 이하인 경우 예외가 발생한다")
         void shouldThrow_whenInvalidAmountGiven() {
             // given
-            PaymentCommand.Pay command = PaymentCommand.Pay.of(0L, 5000L);
+            PaymentCommand.Pay command = PaymentCommand.Pay.ofPoint(0L, 5000L, UUID.randomUUID().toString());
 
             // when & then
-            assertThatThrownBy(() -> paymentService.pay(command))
+            assertThatThrownBy(() -> paymentService.create(command))
                     .isInstanceOf(CoreException.class)
                     .hasMessage("유효하지 않은 금액입니다.");
         }
@@ -67,10 +70,10 @@ class PaymentServiceIntegrationTest {
         @DisplayName("주문 ID가 null 또는 0 이하인 경우 예외가 발생한다")
         void throwsException_whenOrderIdIsNullOrLessThanOrEqualToZero() {
             // given
-            PaymentCommand.Pay command = PaymentCommand.Pay.of(1L, 0L);
+            PaymentCommand.Pay command = PaymentCommand.Pay.ofPoint(1L, 0L, UUID.randomUUID().toString());
 
             // when & then
-            assertThatThrownBy(() -> paymentService.pay(command))
+            assertThatThrownBy(() -> paymentService.create(command))
                     .isInstanceOf(CoreException.class)
                     .hasMessage("유효하지 않은 주문 ID입니다.");
         }

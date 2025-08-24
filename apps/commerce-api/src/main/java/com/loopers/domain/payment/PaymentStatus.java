@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 public enum PaymentStatus {
 
     READY("READY"),
+    PENDING("PENDING"),
     PAID("PAID"),
     CANCEL("CANCEL")
     ;

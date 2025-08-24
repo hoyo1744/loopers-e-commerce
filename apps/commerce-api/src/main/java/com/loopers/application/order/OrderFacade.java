@@ -8,6 +8,8 @@ import com.loopers.domain.order.*;
 import com.loopers.domain.ordercalculator.OrderCalculator;
 import com.loopers.domain.payment.PaymentCommand;
 import com.loopers.domain.payment.PaymentService;
+import com.loopers.domain.payment.PaymentType;
+import com.loopers.domain.pg.*;
 import com.loopers.domain.point.PointCommand;
 import com.loopers.domain.point.PointService;
 import com.loopers.domain.product.ProductInfo;
@@ -50,6 +52,8 @@ public class OrderFacade {
     private final UserService userService;
 
 
+    private final PgService pgService;
+
     @Transactional
     public void order(OrderCriteria.Order request) {
 
@@ -82,13 +86,25 @@ public class OrderFacade {
             });
         });
 
-        paymentService.pay(PaymentCommand.Pay.of(order.calculateFinalPrice(), order.getId()));
+        if (request.getPaymentType().equals(PaymentType.POINT)) {
+            paymentService.create(PaymentCommand.Pay.ofPoint(order.calculateFinalPrice(), order.getId(), order.getOrderNumber()));
+            pointService.deductPoint(PointCommand.Use.of(request.getUserId(), order.calculateFinalPrice()));
+            paymentService.pay(order.getOrderNumber());
+            stockService.decreaseStock(request.toStockCommand());
+        } else if (request.getPaymentType().equals(PaymentType.CARD) ) {
+            paymentService.create(PaymentCommand.Pay.ofCard(order.calculateFinalPrice(), order.getId(), order.getOrderNumber(), request.getCardType()));
+            PgInfo.PaymentResult paymentResult = pgService.requestPayment(request.getUserId(),
+                    PgCommand.PaymentRequest.of(order.getOrderNumber(), request.getCardType(), request.getCardNo(), order.calculateFinalPrice().toString(), PgConstant.PAYMENT_REQUEST_CALLBACK));
+            PgInfo.PaymentDetail paymentDetail = pgService.getPaymentDetail(request.getUserId(), paymentResult.getTransactionKey());
+            if (paymentDetail.getStatus().equals(PgStatus.PENDING)) {
+                paymentService.pending(order.getOrderNumber());
+            }
+        } else {
+            throw new CoreException(ErrorType.BAD_REQUEST, "지원하지 않는 결제타입 입니다.");
+        }
 
-        stockService.decreaseStock(request.toStockCommand());
 
-        pointService.deductPoint(PointCommand.Use.of(request.getUserId(), order.calculateFinalPrice()));
-
-        orderService.pay(OrderCommand.OrderStatus.of(order.getId(), OrderStatus.COMPLETE.getValue()));
+        orderService.complete(order.getOrderNumber());
     }
 
     @Transactional(readOnly = true)
@@ -106,7 +122,7 @@ public class OrderFacade {
                                 order.getOrderId(),
                                 order.getOrderStatus(),
                                 order.getTotalPrice(),
-                                order.getOrderProducts().getOrderProducts().stream()
+                                order.getOrderProducts().getOrderProductDtos().stream()
                                         .map(op -> {
                                             ProductInfo.ProductDetail productDetail = productService.getProductDetail(op.getProductId());
                                             return OrderResult.Product.of(
@@ -130,7 +146,7 @@ public class OrderFacade {
                 orderDetail.getOrderId(),
                 orderDetail.getOrderStatus(),
                 orderDetail.getTotalPrice(),
-                orderDetail.getOrderProducts().getOrderProducts().stream()
+                orderDetail.getOrderProducts().getOrderProductDtos().stream()
                         .map(op -> {
                             ProductInfo.ProductDetail productDetail = productService.getProductDetail(op.getProductId());
                             return OrderResult.Product.of(

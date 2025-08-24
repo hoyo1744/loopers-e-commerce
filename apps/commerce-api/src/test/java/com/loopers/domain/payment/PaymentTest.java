@@ -8,6 +8,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import java.util.UUID;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -27,7 +29,7 @@ class PaymentTest {
 
             // when & then
             CoreException exception = assertThrows(CoreException.class, () -> {
-                Payment.create(orderId, amount);
+                Payment.pointPaymentCreate(orderId, amount, UUID.randomUUID().toString());
             });
 
             assertThat(exception)
@@ -45,7 +47,7 @@ class PaymentTest {
 
             // when & then
             CoreException exception = assertThrows(CoreException.class, () -> {
-                Payment.create(orderId, amount);
+                Payment.pointPaymentCreate(orderId, amount, UUID.randomUUID().toString());
             });
 
             assertThat(exception)
@@ -61,7 +63,7 @@ class PaymentTest {
             Long amount = 5000L;
 
             // when
-            Payment payment = Payment.create(orderId, amount);
+            Payment payment = Payment.pointPaymentCreate(orderId, amount, UUID.randomUUID().toString());
 
             // then
             assertThat(payment.getOrderId()).isEqualTo(orderId);
@@ -78,7 +80,7 @@ class PaymentTest {
         @DisplayName("pay() 호출 시 결제 상태가 PAID로 변경된다")
         void shouldChangeStatusToPaid() {
             // given
-            Payment payment = Payment.create(1L, 3000L);
+            Payment payment = Payment.pointPaymentCreate(1L, 3000L, UUID.randomUUID().toString());
 
             // when
             payment.pay();

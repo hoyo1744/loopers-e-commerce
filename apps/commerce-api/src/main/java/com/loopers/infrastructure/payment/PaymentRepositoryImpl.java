@@ -20,6 +20,12 @@ public class PaymentRepositoryImpl implements PaymentRepository {
     }
 
     @Override
+    public Payment findByOrderNumber(String orderNumber) {
+        return paymentJpaRepository.findByOrderNumber(orderNumber);
+    }
+
+
+    @Override
     public Payment save(Payment payment) {
         return paymentJpaRepository.save(payment);
     }

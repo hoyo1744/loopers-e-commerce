@@ -1,5 +1,7 @@
 package com.loopers.application.order;
 
+import com.loopers.domain.payment.CardType;
+import com.loopers.domain.payment.PaymentType;
 import com.loopers.domain.product.ProductCommand;
 import com.loopers.domain.stock.StockCommand;
 import com.loopers.domain.usercoupon.UserCouponCommand;
@@ -17,19 +19,49 @@ public class OrderCriteria {
         String userId;
         List<OrderProduct> orderProducts;
         Long couponId;
+        PaymentType paymentType;
+        CardType cardType;
+        String cardNo;
 
-        private Order(String userId, List<OrderProduct> orderProducts, Long couponId) {
+        private Order(String userId, List<OrderProduct> orderProducts, Long couponId, PaymentType paymentType, CardType cardType, String cardNo) {
             this.userId = userId;
             this.orderProducts = orderProducts;
             this.couponId = couponId;
+            this.paymentType = paymentType;
+            this.cardType = cardType;
+            this.cardNo = cardNo;
         }
 
-        public static Order of(String userId, List<OrderProduct> orderProducts, Long couponId) {
+        public static Order ofCard(String userId, List<OrderProduct> orderProducts, Long couponId, CardType cardType, String cardNo) {
             return Order.builder()
                     .userId(userId)
                     .orderProducts(orderProducts)
                     .couponId(couponId)
+                    .paymentType(PaymentType.CARD)
+                    .cardType(cardType)
+                    .cardNo(cardNo)
                     .build();
+        }
+
+        public static Order ofPoint(String userId, List<OrderProduct> orderProducts, Long couponId) {
+            return Order.builder()
+                    .userId(userId)
+                    .orderProducts(orderProducts)
+                    .couponId(couponId)
+                    .paymentType(PaymentType.POINT)
+                    .build();
+        }
+
+        public static Order of(String userId, List<OrderProduct> orderProducts, Long couponId, PaymentType paymentType, CardType cardType, String cardNo) {
+            return Order.builder()
+                    .userId(userId)
+                    .orderProducts(orderProducts)
+                    .couponId(couponId)
+                    .paymentType(paymentType)
+                    .cardType(cardType)
+                    .cardNo(cardNo)
+                    .build();
+
         }
 
         public ProductCommand.OrderProducts toProductCommand() {
@@ -88,8 +120,4 @@ public class OrderCriteria {
                     .build();
         }
     }
-
-
-
-
 }

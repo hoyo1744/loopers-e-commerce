@@ -8,8 +8,9 @@ public interface OrderRepository {
 
     Order findById(Long orderId);
 
-    List<OrderProduct> findOrderProductsByOrderId(Long orderId);
+    Order findByOrderNumber(String orderNumber);
 
+    List<OrderProduct> findOrderProductsByOrderId(Long orderId);
 
     List<Order> findByUserId(String userId);
 }

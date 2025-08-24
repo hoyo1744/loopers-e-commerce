@@ -17,7 +17,6 @@ import com.loopers.domain.stock.StockRepository;
 import com.loopers.domain.user.Gender;
 import com.loopers.domain.user.User;
 import com.loopers.domain.user.UserRepository;
-import com.loopers.domain.user.UserService;
 import com.loopers.domain.usercoupon.UserCoupon;
 import com.loopers.domain.usercoupon.UserCouponRepository;
 import com.loopers.domain.usercoupon.UserCouponStatus;
@@ -32,7 +31,6 @@ import org.springframework.http.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -128,6 +126,7 @@ class OrderApiE2ETest {
                     List.of(new OrderRequest.OrderProduct(productId, 1L))
             );
             orderRequest.setCouponId(couponId);
+            orderRequest.setPaymentTypeDto(OrderRequest.PaymentTypeDto.POINT);
 
             // when
             ParameterizedTypeReference<ApiResponse<Void>> responseType = new ParameterizedTypeReference<>() {};
@@ -156,6 +155,7 @@ class OrderApiE2ETest {
             orderRequest.setOrderProducts(
                     List.of(new OrderRequest.OrderProduct(productId, 1L))
             );
+            orderRequest.setPaymentTypeDto(OrderRequest.PaymentTypeDto.POINT);
 
             // when
             ParameterizedTypeReference<ApiResponse<Void>> responseType = new ParameterizedTypeReference<>() {};
@@ -187,6 +187,7 @@ class OrderApiE2ETest {
                     List.of(new OrderRequest.OrderProduct(productId, 1L))
             );
             orderRequest.setCouponId(notExistCouponId);
+            orderRequest.setPaymentTypeDto(OrderRequest.PaymentTypeDto.POINT);
 
             // when
             ParameterizedTypeReference<ApiResponse<Void>> responseType = new ParameterizedTypeReference<>() {};
@@ -225,6 +226,7 @@ class OrderApiE2ETest {
                     List.of(new OrderRequest.OrderProduct(productId, 1L))
             );
             orderRequest.setCouponId(inactiveCoupon.getId());
+            orderRequest.setPaymentTypeDto(OrderRequest.PaymentTypeDto.POINT);
 
             // when
             ParameterizedTypeReference<ApiResponse<Void>> responseType = new ParameterizedTypeReference<>() {};
@@ -257,6 +259,7 @@ class OrderApiE2ETest {
                     List.of(new OrderRequest.OrderProduct(productId, illegalStockQuantity))
             );
             orderRequest.setCouponId(couponId);
+            orderRequest.setPaymentTypeDto(OrderRequest.PaymentTypeDto.POINT);
 
             // when
             ParameterizedTypeReference<ApiResponse<Void>> responseType = new ParameterizedTypeReference<>() {};
@@ -290,6 +293,7 @@ class OrderApiE2ETest {
                     List.of(new OrderRequest.OrderProduct(productId, 1L))
             );
             orderRequest.setCouponId(notExistCouponId);
+            orderRequest.setPaymentTypeDto(OrderRequest.PaymentTypeDto.POINT);
 
             // when
             ParameterizedTypeReference<ApiResponse<Void>> responseType = new ParameterizedTypeReference<>() {};
@@ -330,6 +334,7 @@ class OrderApiE2ETest {
                     List.of(new OrderRequest.OrderProduct(productId, illegalStockQuqntity))
             );
             orderRequest.setCouponId(couponId);
+            orderRequest.setPaymentTypeDto(OrderRequest.PaymentTypeDto.POINT);
 
             // when
             ParameterizedTypeReference<ApiResponse<Void>> responseType = new ParameterizedTypeReference<>() {};
@@ -371,6 +376,7 @@ class OrderApiE2ETest {
                     List.of(new OrderRequest.OrderProduct(productId, originalStockAmount))
             );
             orderRequest.setCouponId(couponId);
+            orderRequest.setPaymentTypeDto(OrderRequest.PaymentTypeDto.POINT);
 
             // when
             ParameterizedTypeReference<ApiResponse<Void>> responseType = new ParameterizedTypeReference<>() {};
@@ -414,7 +420,7 @@ class OrderApiE2ETest {
 
             // 주문 생성
             Long productId = 1L;
-            orderFacade.order(OrderCriteria.Order.of(userId, List.of(
+            orderFacade.order(OrderCriteria.Order.ofPoint(userId, List.of(
                     OrderCriteria.OrderProduct.of(productId, 1L)
             ), coupondId));
 
@@ -481,7 +487,7 @@ class OrderApiE2ETest {
             headers.set("X-USER-ID", userId);
 
             // 주문 생성
-            orderFacade.order(OrderCriteria.Order.of(userId, List.of(
+            orderFacade.order(OrderCriteria.Order.ofPoint(userId, List.of(
                     OrderCriteria.OrderProduct.of(productId, 1L)
             ), coupon.getId()));
 
