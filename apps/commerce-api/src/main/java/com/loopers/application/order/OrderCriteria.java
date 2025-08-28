@@ -81,6 +81,7 @@ public class OrderCriteria {
         public UserCouponCommand.UserCoupon toUserCouponCommand() {
             return UserCouponCommand.UserCoupon.of(userId, couponId);
         }
+
     }
 
     @Getter
