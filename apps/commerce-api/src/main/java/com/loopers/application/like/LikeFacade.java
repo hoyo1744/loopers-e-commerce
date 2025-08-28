@@ -3,9 +3,7 @@ package com.loopers.application.like;
 import com.loopers.domain.brand.BrandCommand;
 import com.loopers.domain.brand.BrandInfo;
 import com.loopers.domain.brand.BrandService;
-import com.loopers.domain.like.LikeCommand;
-import com.loopers.domain.like.LikeInfo;
-import com.loopers.domain.like.LikeService;
+import com.loopers.domain.like.*;
 import com.loopers.domain.product.ProductInfo;
 import com.loopers.domain.product.ProductService;
 import com.loopers.domain.stock.StockInfo;
@@ -32,7 +30,6 @@ public class LikeFacade {
     @Transactional
     public Boolean likeProduct(LikeCriteria.Like like) {
         try {
-            productService.increaseLikeCount(like.toProductCommand());
             likeService.likeProduct(LikeCommand.Like.of(like.getUserId(), like.getProductId()));
             return true;
         } catch (UnexpectedRollbackException ex) {
@@ -43,7 +40,6 @@ public class LikeFacade {
     @Transactional
     public Boolean unlikeProduct(LikeCriteria.Unlike unlike) {
         try {
-            productService.decreaseLikeCount(unlike.toProductCommand());
             likeService.unLikeProduct(LikeCommand.Unlike.of(unlike.getUserId(), unlike.getProductId()));
             return true;
         } catch (UnexpectedRollbackException ex) {

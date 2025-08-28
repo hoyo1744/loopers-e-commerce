@@ -1,5 +1,6 @@
 package com.loopers.domain.like;
 
+import com.loopers.domain.trace.TraceEventPublisher;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -17,8 +18,16 @@ class LikeServiceTest {
     @Mock
     private LikeRepository likeRepository;
 
+    @Mock
+    private LikeEventPublisher likeEventPublisher;
+
+    @Mock
+    private TraceEventPublisher traceEventPublisher;
+
     @InjectMocks
     private LikeService likeService;
+
+
 
     @DisplayName("좋아요 여부 확인 테스트")
     @Nested
