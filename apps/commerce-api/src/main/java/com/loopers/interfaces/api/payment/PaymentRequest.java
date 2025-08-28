@@ -24,7 +24,7 @@ public class PaymentRequest {
         public PaymentCriteria.PaymentResult toPaymentResult() {
             return PaymentCriteria.PaymentResult.builder()
                     .transactionKey(transactionKey)
-                    .orderId(orderId)
+                    .orderNumber(orderId)
                     .cardType(cardType)
                     .cardNo(cardNo)
                     .amount(amount)
