@@ -1,7 +1,10 @@
 package com.loopers.domain.order;
 
+import com.loopers.domain.trace.TraceEventPublisher;
+import com.loopers.domain.trace.TraceOrderEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -11,6 +14,11 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
 
+    private final TraceEventPublisher traceEventPublisher;
+
+    private final OrderEventPublisher orderEventPublisher;
+
+    @Transactional
     public Order createOrder(OrderCommand.Order command) {
         Order order = Order.create(command.getUserId(),
                 OrderCommand.OrderProducts.of(
@@ -22,9 +30,21 @@ public class OrderService {
                                 .toList()
                 ));
 
-        return orderRepository.save(order);
+        Order save = orderRepository.save(order);
+
+        orderEventPublisher.publish(OrderEvent.Completed.of(save.getId(), save.getOrderNumber(), save.calculateFinalPrice()));
+
+        traceEventPublisher.publish(TraceOrderEvent.OrderCompleted.of(
+                command.getUserId(),
+                save.getId(),
+                save.getOrderNumber(),
+                save.calculateFinalPrice()
+        ));
+
+        return save;
     }
 
+    @Transactional
     public void complete(String orderNumber) {
         Order order = orderRepository.findByOrderNumber(orderNumber);
         order.updateOrderStatus(OrderStatus.COMPLETE);
@@ -75,6 +95,11 @@ public class OrderService {
     public OrderInfo.OrderProducts getOrderProducts(String orderNumber) {
         Order order = orderRepository.findByOrderNumber(orderNumber);
         return OrderInfo.OrderProducts.from(order.getOrderProducts());
+    }
 
+    @Transactional
+    public Order getOrder(String orderNumber) {
+       return orderRepository.findByOrderNumber(orderNumber);
     }
 }
+
