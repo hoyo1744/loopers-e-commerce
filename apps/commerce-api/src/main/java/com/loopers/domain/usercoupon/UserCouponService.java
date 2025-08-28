@@ -29,6 +29,9 @@ public class UserCouponService {
 
     @Transactional
     public void useCoupon(Long userCouponId) {
+        if (userCouponId == null || userCouponId <= 0) {
+            throw new IllegalArgumentException("올바른 쿠폰 ID가 아닙니다.");
+        }
         UserCoupon userCoupon = userCouponRepository.findById(userCouponId);
         userCoupon.use();
         userCouponRepository.saveAndFlush(userCoupon);

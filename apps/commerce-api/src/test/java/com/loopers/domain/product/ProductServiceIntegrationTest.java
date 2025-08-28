@@ -110,7 +110,7 @@ class ProductServiceIntegrationTest {
             }
 
             // when
-            ProductInfo.OrderProducts result = productService.getOrderProducts(
+            ProductInfo.OrderProducts result = productService.getProducts(
                     ProductCommand.OrderProducts.of(orderCommands));
 
             // then

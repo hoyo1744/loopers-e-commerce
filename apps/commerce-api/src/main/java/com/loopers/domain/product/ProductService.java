@@ -20,7 +20,7 @@ public class ProductService {
         return ProductInfo.ProductDetail.of(product.getName(), product.getPrice(), product.getBrandId());
     }
 
-    public ProductInfo.OrderProducts getOrderProducts(ProductCommand.OrderProducts orderProducts) {
+    public ProductInfo.OrderProducts getProducts(ProductCommand.OrderProducts orderProducts) {
         List<ProductInfo.OrderProduct> orderProductList = orderProducts.getOrderProducts().stream()
                 .map(op -> {
                     Product product = productRepository.findById(op.getProductId());

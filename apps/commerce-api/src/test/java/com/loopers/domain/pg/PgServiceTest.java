@@ -5,11 +5,9 @@ import com.loopers.support.error.PgServiceRetryException;
 import com.loopers.support.error.RetryableBusinessException;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
+import io.github.resilience4j.retry.RetryRegistry;
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,7 +38,7 @@ import static org.mockito.Mockito.*;
         "resilience4j.retry.instances.pgRetry.fail-after-max-attempts=true",
 
         // ---------- CircuitBreaker(pgCircuit) ----------
-        "resilience4j.circuitbreaker.instances.pgCircuit.minimum-number-of-calls=5",
+            "resilience4j.circuitbreaker.instances.pgCircuit.minimum-number-of-calls=5",
         "resilience4j.circuitbreaker.instances.pgCircuit.sliding-window-size=10",
         "resilience4j.circuitbreaker.instances.pgCircuit.failure-rate-threshold=50",
         "resilience4j.circuitbreaker.instances.pgCircuit.wait-duration-in-open-state=10s",
@@ -50,8 +48,21 @@ import static org.mockito.Mockito.*;
 
 
 })
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+//@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 class PgServiceTest {
+
+    @Autowired
+    CircuitBreakerRegistry cbRegistry;
+
+    @Autowired
+    RetryRegistry retryRegistry;
+
+    @AfterEach
+    void resetResilience4j() {
+        cbRegistry.getAllCircuitBreakers().forEach(CircuitBreaker::reset);
+        retryRegistry.getAllRetries().forEach(r -> retryRegistry.remove(r.getName()));
+    }
+
 
     @TestConfiguration
     static class TestConfig {
@@ -72,6 +83,9 @@ class PgServiceTest {
         PgService pgService(PgClient pgClient, PgHistoryRepository pgHistoryRepository) {
             return Mockito.spy(new PgService(pgClient,pgHistoryRepository));
         }
+
+
+
     }
 
 

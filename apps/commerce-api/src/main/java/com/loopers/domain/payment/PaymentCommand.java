@@ -7,14 +7,14 @@ public class PaymentCommand {
 
     @Getter
     @Builder
-    public static class Pay {
+    public static class Create {
         private Long amount;
         private Long orderId;
         private String orderNumber;
         private PaymentType paymentType;
         private CardType cardType;
 
-        private Pay(Long amount, Long orderId, String orderNumber, PaymentType paymentType, CardType cardType) {
+        private Create(Long amount, Long orderId, String orderNumber, PaymentType paymentType, CardType cardType) {
             this.amount = amount;
             this.orderId = orderId;
             this.orderNumber = orderNumber;
@@ -22,8 +22,8 @@ public class PaymentCommand {
             this.cardType = cardType;
         }
 
-        public static PaymentCommand.Pay ofPoint(Long amount, Long orderId, String orderNumber) {
-            return Pay.builder()
+        public static Create ofPoint(Long amount, Long orderId, String orderNumber) {
+            return Create.builder()
                     .amount(amount)
                     .orderId(orderId)
                     .orderNumber(orderNumber)
@@ -32,13 +32,33 @@ public class PaymentCommand {
                     .build();
         }
 
-        public static PaymentCommand.Pay ofCard(Long amount, Long orderId, String orderNumber, CardType cardType) {
-            return Pay.builder()
+        public static Create ofCard(Long amount, Long orderId, String orderNumber, CardType cardType) {
+            return Create.builder()
                     .amount(amount)
                     .orderId(orderId)
                     .orderNumber(orderNumber)
                     .paymentType(PaymentType.CARD)
                     .cardType(cardType)
+                    .build();
+        }
+    }
+
+    @Getter
+    @Builder
+    public static class Pay {
+        private String userId;
+        private String orderNumber;
+
+
+        private Pay(String userId, String orderNumber) {
+            this.userId = userId;
+            this.orderNumber = orderNumber;
+        }
+
+        public static Pay of(String userId, String orderNumber) {
+            return Pay.builder()
+                    .userId(userId)
+                    .orderNumber(orderNumber)
                     .build();
         }
     }
