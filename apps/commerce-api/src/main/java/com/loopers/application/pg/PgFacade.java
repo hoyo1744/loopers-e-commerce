@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 public class PgFacade {
     private final PgService pgService;
 
-    public void requestPayment(PgCriteria.PaymentEvent paymentEvent) {
+    public void handlePayment(PgCriteria.PaymentEvent paymentEvent) {
         pgService.requestPayment(paymentEvent.getUserId(), paymentEvent.getPayment().toPgCommand());
     }
 }

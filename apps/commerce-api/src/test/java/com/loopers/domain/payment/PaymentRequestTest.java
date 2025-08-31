@@ -13,7 +13,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-class PaymentTest {
+class PaymentRequestTest {
 
     @Nested
     @DisplayName("Payment 생성 테스트")

@@ -4,14 +4,13 @@ import com.loopers.domain.brand.BrandCommand;
 import com.loopers.domain.brand.BrandService;
 import com.loopers.domain.coupon.Coupon;
 import com.loopers.domain.coupon.CouponService;
-import com.loopers.domain.order.*;
+import com.loopers.domain.order.Order;
+import com.loopers.domain.order.OrderCommand;
+import com.loopers.domain.order.OrderInfo;
+import com.loopers.domain.order.OrderService;
 import com.loopers.domain.ordercalculator.OrderCalculator;
-import com.loopers.domain.payment.PaymentCommand;
-import com.loopers.domain.payment.PaymentService;
-import com.loopers.domain.payment.PaymentType;
-import com.loopers.domain.pg.*;
-import com.loopers.domain.point.PointCommand;
-import com.loopers.domain.point.PointService;
+import com.loopers.domain.payment.PaymentEventCommand;
+import com.loopers.domain.payment.PaymentEventService;
 import com.loopers.domain.product.ProductInfo;
 import com.loopers.domain.product.ProductService;
 import com.loopers.domain.stock.StockService;
@@ -24,7 +23,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -37,10 +35,6 @@ public class OrderFacade {
 
     private final ProductService productService;
 
-    private final PointService pointService;
-
-    private final PaymentService paymentService;
-
     private final BrandService brandService;
 
     private final UserCouponService userCouponService;
@@ -51,8 +45,8 @@ public class OrderFacade {
 
     private final UserService userService;
 
-
-    private final PgService pgService;
+    private final PaymentEventService paymentEventService;
+    
 
     @Transactional
     public void order(OrderCriteria.Order request) {
@@ -65,12 +59,7 @@ public class OrderFacade {
 
         stockService.validateStock(request.toStockCommand());
 
-        ProductInfo.OrderProducts orderProducts = productService.getOrderProducts(request.toProductCommand());
-
-        Optional<Long> optionalCouponId = Optional.ofNullable(request.getCouponId());
-        Optional<UserCoupon> userCoupon = optionalCouponId.map(id -> userCouponService.getAvailableUserCoupon(request.toUserCouponCommand()));
-
-        Optional<Coupon> coupon = userCoupon.map(uc -> couponService.getCoupon(uc.getCouponId()));
+        ProductInfo.OrderProducts orderProducts = productService.getProducts(request.toProductCommand());
 
         Order order = orderService.createOrder(OrderCommand.Order.of(request.getUserId(),
                 OrderCommand.OrderProducts.of(
@@ -79,35 +68,24 @@ public class OrderFacade {
                                 .collect(Collectors.toList()))
         ));
 
-        userCoupon.ifPresent(uc -> {
-            coupon.ifPresent(c -> {
-                orderCalculator.applyDiscount(order, c, uc);
-                userCouponService.useCoupon(uc.getId());
-            });
-        });
-
-        if (request.getPaymentType().equals(PaymentType.POINT)) {
-            paymentService.create(PaymentCommand.Pay.ofPoint(order.calculateFinalPrice(), order.getId(), order.getOrderNumber()));
-            pointService.deductPoint(PointCommand.Use.of(request.getUserId(), order.calculateFinalPrice()));
-            paymentService.pay(order.getOrderNumber());
-            stockService.decreaseStock(request.toStockCommand());
-        } else if (request.getPaymentType().equals(PaymentType.CARD) ) {
-            paymentService.create(PaymentCommand.Pay.ofCard(order.calculateFinalPrice(), order.getId(), order.getOrderNumber(), request.getCardType()));
-            PgInfo.PaymentResult paymentResult = pgService.requestPayment(request.getUserId(),
-                    PgCommand.PaymentRequest.of(order.getOrderNumber(), request.getCardType(), request.getCardNo(), order.calculateFinalPrice().toString(), PgConstant.PAYMENT_REQUEST_CALLBACK));
-            PgInfo.PaymentDetail paymentDetail = pgService.getPaymentDetail(request.getUserId(), paymentResult.getTransactionKey());
-            if (paymentDetail.getStatus().equals(PgStatus.PENDING)) {
-                paymentService.pending(order.getOrderNumber());
-            }
-        } else {
-            throw new CoreException(ErrorType.BAD_REQUEST, "지원하지 않는 결제타입 입니다.");
+        Long userCouponId = null;
+        Long couponId = request.getCouponId();
+        if(couponId != null) {
+            UserCoupon uc = userCouponService.getAvailableUserCoupon(request.toUserCouponCommand());
+            userCouponId = uc.getId();
+            Coupon c = couponService.getCoupon(uc.getCouponId());
+            orderCalculator.applyDiscount(order, c, uc);
         }
 
+        // 결제 요청 이벤트 발행
+        paymentEventService.publishRequested(PaymentEventCommand.Requested.of(request.getUserId(), couponId,
+                PaymentEventCommand.Payment.of(order.getOrderNumber(), request.getCardType(), request.getCardNo(), order.calculateFinalPrice(), request.getPaymentType())));
 
-        orderService.complete(order.getOrderNumber());
+        // 결제 완료 이벤트 발행
+        paymentEventService.publishCompleted(PaymentEventCommand.Completed.of(userCouponId, order.getOrderNumber()));
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public OrderResult.Orders getOrders(String userId) {
 
         if (userId == null || userId.isEmpty()) {

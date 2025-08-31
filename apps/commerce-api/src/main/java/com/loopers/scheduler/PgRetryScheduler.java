@@ -1,6 +1,7 @@
 package com.loopers.scheduler;
 
 import com.loopers.domain.order.OrderService;
+import com.loopers.domain.payment.PaymentCommand;
 import com.loopers.domain.payment.PaymentService;
 import com.loopers.domain.pg.*;
 import com.loopers.support.error.PgServiceRetryException;
@@ -43,7 +44,7 @@ public class PgRetryScheduler {
                 );
 
                 pgService.requestPayment(failed.getUserId(), retryRequest);
-                paymentService.pay(failed.getOrderNumber());
+                paymentService.pay(PaymentCommand.Pay.of(failed.getUserId(), failed.getOrderNumber()));
                 orderService.complete(failed.getOrderNumber());
                 historyService.complete(failed.getOrderNumber());
             } catch (PgServiceRetryException | PgServiceUnavailableException ignored) {

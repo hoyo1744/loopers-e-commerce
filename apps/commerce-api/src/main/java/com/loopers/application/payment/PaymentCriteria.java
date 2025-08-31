@@ -9,22 +9,21 @@ public class PaymentCriteria {
     @Builder
     public static class PaymentResult {
         private String transactionKey;
-        private String orderId;
+        private String orderNumber;
         private String cardType;
         private String cardNo;
         private Long amount;
         private String status;
         private String reason;
 
-        private PaymentResult(String transactionKey, String orderId, String cardType, String cardNo, Long amount, String status, String reason) {
+        private PaymentResult(String transactionKey, String orderNumber, String cardType, String cardNo, Long amount, String status, String reason) {
             this.transactionKey = transactionKey;
-            this.orderId = orderId;
+            this.orderNumber = orderNumber;
             this.cardType = cardType;
             this.cardNo = cardNo;
             this.amount = amount;
             this.status = status;
             this.reason = reason;
         }
-
     }
 }

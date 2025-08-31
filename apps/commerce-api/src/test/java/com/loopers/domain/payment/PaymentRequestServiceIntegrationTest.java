@@ -14,7 +14,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest
-class PaymentServiceIntegrationTest {
+class PaymentRequestServiceIntegrationTest {
 
     @Autowired
     private PaymentService paymentService;
@@ -32,7 +32,7 @@ class PaymentServiceIntegrationTest {
 
     @Nested
     @DisplayName("결제 처리 통합 테스트")
-    class Pay {
+    class Create {
 
         @Test
         @DisplayName("유효한 주문 ID와 금액으로 결제 요청 시, 결제 상태가 PAID로 저장된다")
@@ -40,12 +40,13 @@ class PaymentServiceIntegrationTest {
             // given
             Long orderId = 1L;
             Long amount = 10000L;
+            String userId = "userId";
 
-            PaymentCommand.Pay command = PaymentCommand.Pay.ofPoint(amount, orderId, UUID.randomUUID().toString());
+            PaymentCommand.Create command = PaymentCommand.Create.ofPoint(amount, orderId, UUID.randomUUID().toString());
 
             // when
             PaymentInfo.Payment pay = paymentService.create(command);
-            paymentService.pay(command.getOrderNumber());
+            paymentService.pay(PaymentCommand.Pay.of(userId, command.getOrderNumber()));
 
             // then
             Payment saved = paymentRepository.findById(pay.getPaymentId());
@@ -58,7 +59,7 @@ class PaymentServiceIntegrationTest {
         @DisplayName("결제 금액이 null 또는 0 이하인 경우 예외가 발생한다")
         void shouldThrow_whenInvalidAmountGiven() {
             // given
-            PaymentCommand.Pay command = PaymentCommand.Pay.ofPoint(0L, 5000L, UUID.randomUUID().toString());
+            PaymentCommand.Create command = PaymentCommand.Create.ofPoint(0L, 5000L, UUID.randomUUID().toString());
 
             // when & then
             assertThatThrownBy(() -> paymentService.create(command))
@@ -70,7 +71,7 @@ class PaymentServiceIntegrationTest {
         @DisplayName("주문 ID가 null 또는 0 이하인 경우 예외가 발생한다")
         void throwsException_whenOrderIdIsNullOrLessThanOrEqualToZero() {
             // given
-            PaymentCommand.Pay command = PaymentCommand.Pay.ofPoint(1L, 0L, UUID.randomUUID().toString());
+            PaymentCommand.Create command = PaymentCommand.Create.ofPoint(1L, 0L, UUID.randomUUID().toString());
 
             // when & then
             assertThatThrownBy(() -> paymentService.create(command))

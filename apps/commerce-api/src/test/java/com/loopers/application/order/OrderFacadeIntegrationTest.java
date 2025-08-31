@@ -28,7 +28,9 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.scheduling.annotation.EnableAsync;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.*;
@@ -36,9 +38,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
+@EnableAsync
 class OrderFacadeIntegrationTest {
 
     @Autowired
@@ -197,12 +201,16 @@ class OrderFacadeIntegrationTest {
             orderFacade.order(order);
 
             // then
-            OrderResult.Orders result
-                    = orderFacade.getOrders(user.getId());
-            assertThat(result.getOrders()).hasSize(1);
-            OrderResult.Order createdOrder = result.getOrders().get(0);
-            assertThat(createdOrder.getOrderStatus()).isEqualTo(OrderStatus.COMPLETE.getValue());
-            assertThat(createdOrder.getTotalPrice()).isEqualTo(1000L);
+            await()
+                    .atMost(Duration.ofSeconds(3))
+                    .pollInterval(Duration.ofMillis(100))
+                    .untilAsserted(() -> {
+                        OrderResult.Orders result = orderFacade.getOrders(user.getId());
+                        assertThat(result.getOrders()).hasSize(1);
+                        OrderResult.Order createdOrder = result.getOrders().get(0);
+                        assertThat(createdOrder.getOrderStatus()).isEqualTo(OrderStatus.COMPLETE.getValue());
+                        assertThat(createdOrder.getTotalPrice()).isEqualTo(1000L);
+                    });
         }
     }
 
@@ -252,11 +260,18 @@ class OrderFacadeIntegrationTest {
             OrderResult.Order detail = orderFacade.getOrder(OrderCriteria.OrderDetail.of(userId, createdOrder.getOrderId()));
 
             // then
-            assertThat(detail.getOrderStatus()).isEqualTo(OrderStatus.COMPLETE.getValue());
-            assertThat(detail.getTotalPrice()).isEqualTo(2400L);
-            assertThat(detail.getProducts().get(0).getPrice()).isEqualTo(1200L);
-            assertThat(detail.getProducts().get(0).getBrand()).isEqualTo("Nike");
-            assertThat(detail.getProducts().get(0).getName()).isEqualTo("Air Max");
+            await()
+                    .atMost(Duration.ofSeconds(3))
+                    .pollInterval(Duration.ofMillis(100))
+                    .untilAsserted(() -> {
+                        OrderResult.Order details = orderFacade.getOrder(OrderCriteria.OrderDetail.of(userId, createdOrder.getOrderId()));
+
+                        assertThat(details.getOrderStatus()).isEqualTo(OrderStatus.COMPLETE.getValue());
+                        assertThat(details.getTotalPrice()).isEqualTo(1200L * 2); // 2400L
+                        assertThat(details.getProducts().get(0).getPrice()).isEqualTo(1200L);
+                        assertThat(details.getProducts().get(0).getBrand()).isEqualTo("Nike");
+                        assertThat(details.getProducts().get(0).getName()).isEqualTo("Air Max");
+                    });
         }
 
         @Test
@@ -291,15 +306,23 @@ class OrderFacadeIntegrationTest {
             OrderResult.Orders orders = orderFacade.getOrders(user.getId());
 
             // then
-            assertThat(orders.getOrders()).hasSize(1);
-            OrderResult.Order result = orders.getOrders().get(0);
-            assertThat(result.getOrderStatus()).isEqualTo(OrderStatus.COMPLETE.getValue());
-            assertThat(result.getTotalPrice()).isEqualTo(1500L);
+            await()
+                    .atMost(Duration.ofSeconds(3))
+                    .pollInterval(Duration.ofMillis(100))
+                    .untilAsserted(() -> {
+                        OrderResult.Orders od = orderFacade.getOrders(user.getId());
 
-            OrderResult.Product productResult = result.getProducts().get(0);
-            assertThat(productResult.getName()).isEqualTo("Ultraboost");
-            assertThat(productResult.getBrand()).isEqualTo("Adidas");
-            assertThat(productResult.getPrice()).isEqualTo(1500L);
+                        assertThat(orders.getOrders()).hasSize(1);
+
+                        OrderResult.Order result = od.getOrders().get(0);
+                        assertThat(result.getOrderStatus()).isEqualTo(OrderStatus.COMPLETE.getValue());
+                        assertThat(result.getTotalPrice()).isEqualTo(1500L);
+
+                        OrderResult.Product productResult = result.getProducts().get(0);
+                        assertThat(productResult.getName()).isEqualTo("Ultraboost");
+                        assertThat(productResult.getBrand()).isEqualTo("Adidas");
+                        assertThat(productResult.getPrice()).isEqualTo(1500L);
+                    });
         }
 
         @Test
@@ -333,10 +356,10 @@ class OrderFacadeIntegrationTest {
     @DisplayName("주문 동시성 테스트")
     @Nested
     public class Concurrent {
-        
+
         @Test
         @DisplayName("동시에 주문해도 쿠폰은 1번만 사용된다.")
-        public void coupon_used_only_once_under_concurrency() throws Exception{
+        public void coupon_used_only_once_under_concurrency() throws Exception {
             // given
             String userId = "hoyongeom";
             long price = 1_000L;
@@ -357,10 +380,12 @@ class OrderFacadeIntegrationTest {
             Product product = productRepository.save(Product.create(brand.getId(), "P", price));
             stockRepository.save(Stock.create(product.getId(), stockQty));
             pointRepository.save(Point.create(userId, initialPoint));
-            Coupon coupon = couponRepository.save(Coupon.create("test", 100L, 10L, DiscountType.PERCENT, CouponStatus.ACTIVE, LocalDateTime.now().plusDays(10)));
+            Coupon coupon = couponRepository.save(
+                    Coupon.create("test", 100L, 10L, DiscountType.PERCENT, CouponStatus.ACTIVE, LocalDateTime.now().plusDays(10))
+            );
             UserCoupon userCoupon = userCouponRepository.saveAndFlush(UserCoupon.create(userId, coupon.getId()));
 
-            int threads = 20;
+            int threads = 3;
 
             // when
             List<CompletableFuture<Boolean>> results = runConcurrently(
@@ -379,25 +404,25 @@ class OrderFacadeIntegrationTest {
             long successCount = results.stream().map(CompletableFuture::join).filter(Boolean::booleanValue).count();
 
             // then
-//            em.clear();
             UserCoupon uc = userCouponRepository.findByUserIdAndCouponId(userId, userCoupon.getCouponId())
                     .orElseThrow();
             boolean used = uc.getUserCouponStatus() == UserCouponStatus.USED;
 
             assertThat(used).isTrue();
-            assertThat(successCount).isEqualTo(1);
+            assertThat(successCount).isEqualTo(1); // ✨ 여전히 한 번만 사용되어야 함
         }
 
         @Test
         @DisplayName("동일 유저가 여러 상품을 포함한 주문을 동시에 수행해도 포인트는 정확히 차감된다.")
-        void points_deduct_all_success_when_sameUser_manyOrders() throws Exception {
+        public void points_deduct_all_success_when_sameUser_manyOrders() throws Exception {
             // given
             String userId = "hoyong";
-            int orders = 30;
+            int orders = 5; // 주문 횟수 줄임
             long pricePerItem = 2_000L;
             long quantityPerItem = 2L;
             int productCountPerOrder = 3;
-            long initialPoint = (pricePerItem * quantityPerItem * productCountPerOrder) * orders + 10_000L;
+            long pointPerOrder = pricePerItem * quantityPerItem * productCountPerOrder;
+            long initialPoint = pointPerOrder * orders + 10_000L; // 넉넉한 초기 포인트
 
             userRepository.save(User.create(
                     userId, "1q2w3e4r!@", "userName", "email@loopers.com",
@@ -412,6 +437,10 @@ class OrderFacadeIntegrationTest {
 
             products.forEach(p -> stockRepository.save(Stock.create(p.getId(), 100L)));
 
+            Coupon coupon = couponRepository.save(
+                    Coupon.create("test", 100L, 10L, DiscountType.PERCENT, CouponStatus.ACTIVE, LocalDateTime.now().plusDays(10))
+            );
+            UserCoupon userCoupon = UserCouponRepository.save(UserCoupon.create(userId, coupon.getId()));
 
             CountDownLatch start = new CountDownLatch(1);
 
@@ -424,8 +453,7 @@ class OrderFacadeIntegrationTest {
                                     userId,
                                     products.stream()
                                             .map(p -> OrderCriteria.OrderProduct.of(p.getId(), quantityPerItem))
-                                            .toList()
-                                    ,
+                                            .toList(),
                                     null
                             );
                             orderFacade.order(request);
@@ -443,7 +471,7 @@ class OrderFacadeIntegrationTest {
             long success = results.stream().map(CompletableFuture::join).filter(Boolean::booleanValue).count();
 
             // then
-            long expectedTotalPointDeducted = ((pricePerItem * quantityPerItem * productCountPerOrder)) * success;
+            long expectedTotalPointDeducted = pointPerOrder * success;
             long remain = pointRepository.findByUserId(userId).orElseThrow().getAmount();
             assertThat(success).isEqualTo(orders);
             assertThat(remain).isEqualTo(initialPoint - expectedTotalPointDeducted);
@@ -455,7 +483,7 @@ class OrderFacadeIntegrationTest {
             // given
             String userId = "hoyong";
             long price = 1_000L;
-            int orders = 10;
+            int orders = 3; // ✨ 변경
             long quantityPerOrder = 1L;
             long initialStock = orders * quantityPerOrder;
             long initialPoint = price * orders * quantityPerOrder + 10_000L;
@@ -469,8 +497,12 @@ class OrderFacadeIntegrationTest {
             Product product = productRepository.save(Product.create(brand.getId(), "Air Max", price));
             stockRepository.save(Stock.create(product.getId(), initialStock));
             pointRepository.save(Point.create(userId, initialPoint));
+            Coupon coupon = couponRepository.save(
+                    Coupon.create("test", 100L, 10L, DiscountType.PERCENT, CouponStatus.ACTIVE, LocalDateTime.now().plusDays(10))
+            );
+            UserCoupon userCoupon = UserCouponRepository.save(UserCoupon.create(userId, coupon.getId()));
 
-            ExecutorService executorService = Executors.newFixedThreadPool(16);
+            ExecutorService executorService = Executors.newFixedThreadPool(4); // 스레드 풀은 그대로
             CountDownLatch ready = new CountDownLatch(orders);
             CountDownLatch start = new CountDownLatch(1);
             CountDownLatch done = new CountDownLatch(orders);

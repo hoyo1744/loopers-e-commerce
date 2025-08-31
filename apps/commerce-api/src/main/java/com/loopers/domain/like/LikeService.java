@@ -1,10 +1,9 @@
 package com.loopers.domain.like;
 
+import com.loopers.domain.trace.TraceEventPublisher;
+import com.loopers.domain.trace.TraceLikeEvent;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Set;
@@ -14,6 +13,10 @@ import java.util.Set;
 public class LikeService {
 
     private final LikeRepository likeRepository;
+
+    private final LikeEventPublisher likeEventPublisher;
+
+    private final TraceEventPublisher traceEventPublisher;
 
     public boolean isLiked(LikeCommand.Check command) {
         return likeRepository.existsByUserIdAndProductId(command.getUserId(), command.getProductId());
@@ -31,10 +34,14 @@ public class LikeService {
     public void likeProduct(LikeCommand.Like command) {
         Like like = Like.create(command.getUserId(), command.getProductId());
         likeRepository.insertIfNotExists(like.getUserId(), like.getProductId());
+        likeEventPublisher.publish(LikeEvent.Like.of(like.getProductId(), like.getUserId()));
+        traceEventPublisher.publish(TraceLikeEvent.LikeCreated.of(like.getUserId(), like.getProductId()));
     }
 
     public void unLikeProduct(LikeCommand.Unlike command) {
         likeRepository.deleteByUserIdAndProductId(command.getUserId(), command.getProductId());
+        likeEventPublisher.publish(LikeEvent.Unlike.of(command.getProductId(), command.getUserId()));
+        traceEventPublisher.publish(TraceLikeEvent.LikeCanceled.of(command.getUserId(), command.getProductId()));
     }
 
     public List<LikeInfo.LikeProduct> getLikeProduct(String userId) {

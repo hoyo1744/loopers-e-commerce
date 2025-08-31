@@ -1,5 +1,7 @@
 package com.loopers.domain.payment;
 
+import com.loopers.domain.trace.TraceEventPublisher;
+import com.loopers.domain.trace.TracePaymentEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,9 +13,11 @@ public class PaymentService {
 
     private final PaymentRepository paymentRepository;
 
+    private final TraceEventPublisher traceEventPublisher;
+
     @Transactional
-    public PaymentInfo.Payment create(PaymentCommand.Pay pay) {
-        Payment payment = Payment.create(pay.getOrderId(), pay.getAmount(), pay.getOrderNumber(), pay.getPaymentType(), pay.getCardType());
+    public PaymentInfo.Payment create(PaymentCommand.Create create) {
+        Payment payment = Payment.create(create.getOrderId(), create.getAmount(), create.getOrderNumber(), create.getPaymentType(), create.getCardType());
 
         Payment result = paymentRepository.save(payment);
 
@@ -21,9 +25,18 @@ public class PaymentService {
     }
 
     @Transactional
-    public PaymentInfo.Payment pay(String orderNumber) {
-        Payment payment = paymentRepository.findByOrderNumber(orderNumber);
+    public PaymentInfo.Payment pay(PaymentCommand.Pay pay) {
+        Payment payment = paymentRepository.findByOrderNumber(pay.getOrderNumber());
         payment.pay();
+
+
+        traceEventPublisher.publish(TracePaymentEvent.PaymentCompleted.of(
+                pay.getUserId(),
+                payment.getOrderId(),
+                payment.getOrderNumber(),
+                payment.getId(),
+                payment.getAmount()
+        ));
 
         return PaymentInfo.Payment.of(payment.getId(), payment.getAmount(), payment.getOrderId(), payment.getPaymentStatus().getValue());
     }
