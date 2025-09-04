@@ -1,7 +1,9 @@
 package com.loopers.domain.pg;
 
 import com.loopers.domain.payment.CardType;
+import com.loopers.domain.sender.MessageSender;
 import com.loopers.infrastructure.pg.PgFeignClient;
+import com.loopers.infrastructure.sender.KafkaProducer;
 import com.loopers.support.error.PgServiceRetryException;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -9,16 +11,28 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-@SpringBootTest
+@SpringBootTest(properties = {
+        // 어떤 컴포넌트도 정상 주소로 붙지 않도록 더미 주소
+        "spring.kafka.bootstrap-servers=localhost:0",
+
+        // @KafkaListener 자동 기동 금지
+        "spring.kafka.listener.auto-startup=false",
+
+        // KafkaAdmin(토픽 자동 생성)도 접속하지 않게
+        "spring.kafka.admin.auto-create=false",
+        "spring.kafka.admin.fail-fast=false"
+})
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @ContextConfiguration(initializers = PgServiceTimeoutTest.MockServerInitializer.class)
 class PgServiceTimeoutTest {
@@ -36,6 +50,10 @@ class PgServiceTimeoutTest {
 
     @Autowired
     PgService pgService;
+
+
+    @MockBean
+    private KafkaTemplate<Object,Object> kafkaTemplate;
 
     @BeforeEach
     void setUp() throws IOException {
@@ -79,6 +97,9 @@ class PgServiceTimeoutTest {
 
     @Autowired
     PgFeignClient pgFeignClient;
+
+    @MockBean
+    private KafkaProducer kafkaProducer;
 
     @Nested
     @DisplayName("Retry가 없을 경우 FeignClient의 예외 테스트")

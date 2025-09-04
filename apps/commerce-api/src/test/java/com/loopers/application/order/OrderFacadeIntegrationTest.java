@@ -1,5 +1,7 @@
 package com.loopers.application.order;
 
+import com.loopers.common.kafka.event.EventMessage;
+import com.loopers.common.kafka.topic.Topics;
 import com.loopers.domain.brand.Brand;
 import com.loopers.domain.brand.BrandRepository;
 import com.loopers.domain.coupon.Coupon;
@@ -11,6 +13,7 @@ import com.loopers.domain.point.Point;
 import com.loopers.domain.point.PointRepository;
 import com.loopers.domain.product.Product;
 import com.loopers.domain.product.ProductRepository;
+import com.loopers.domain.sender.MessageSender;
 import com.loopers.domain.stock.Stock;
 import com.loopers.domain.stock.StockRepository;
 import com.loopers.domain.user.Gender;
@@ -28,6 +31,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.scheduling.annotation.EnableAsync;
 
 import java.time.Duration;
@@ -40,6 +44,9 @@ import java.util.stream.IntStream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.verify;
 
 @SpringBootTest
 @EnableAsync
@@ -77,11 +84,15 @@ class OrderFacadeIntegrationTest {
     @Autowired
     private UserCouponRepository userCouponRepository;
 
+    @MockBean
+    private MessageSender messageSender;
+
 
     @AfterEach
     void tearDown() {
         databaseCleanUp.truncateAllTables();
     }
+
 
 
     @DisplayName("OrderFacade 주문 통합 테스트")
@@ -408,8 +419,11 @@ class OrderFacadeIntegrationTest {
                     .orElseThrow();
             boolean used = uc.getUserCouponStatus() == UserCouponStatus.USED;
 
+
             assertThat(used).isTrue();
-            assertThat(successCount).isEqualTo(1); // ✨ 여전히 한 번만 사용되어야 함
+            assertThat(successCount).isEqualTo(1);
+            verify(messageSender, atLeastOnce())
+                    .send(eq(Topics.TRACE), anyString(), any(EventMessage.class));
         }
 
         @Test
@@ -422,7 +436,7 @@ class OrderFacadeIntegrationTest {
             long quantityPerItem = 2L;
             int productCountPerOrder = 3;
             long pointPerOrder = pricePerItem * quantityPerItem * productCountPerOrder;
-            long initialPoint = pointPerOrder * orders + 10_000L; // 넉넉한 초기 포인트
+            long initialPoint = pointPerOrder * orders + 10_000L;
 
             userRepository.save(User.create(
                     userId, "1q2w3e4r!@", "userName", "email@loopers.com",
@@ -475,6 +489,8 @@ class OrderFacadeIntegrationTest {
             long remain = pointRepository.findByUserId(userId).orElseThrow().getAmount();
             assertThat(success).isEqualTo(orders);
             assertThat(remain).isEqualTo(initialPoint - expectedTotalPointDeducted);
+            verify(messageSender, atLeastOnce())
+                    .send(eq(Topics.TRACE), anyString(), any(EventMessage.class));
         }
 
         @Test
@@ -543,6 +559,8 @@ class OrderFacadeIntegrationTest {
             assertThat(successCount.get()).isEqualTo(orders);
             assertThat(remainingStock).isEqualTo(0L);
             assertThat(remainingPoint).isEqualTo(initialPoint - (orders * price));
+            verify(messageSender, atLeastOnce())
+                    .send(eq(Topics.TRACE), anyString(), any(EventMessage.class));
         }
 
 

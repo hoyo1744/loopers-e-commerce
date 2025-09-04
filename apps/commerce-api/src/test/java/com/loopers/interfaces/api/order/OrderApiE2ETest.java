@@ -2,6 +2,8 @@ package com.loopers.interfaces.api.order;
 
 import com.loopers.application.order.OrderCriteria;
 import com.loopers.application.order.OrderFacade;
+import com.loopers.common.kafka.event.EventMessage;
+import com.loopers.common.kafka.topic.Topics;
 import com.loopers.domain.brand.Brand;
 import com.loopers.domain.brand.BrandRepository;
 import com.loopers.domain.coupon.Coupon;
@@ -12,6 +14,7 @@ import com.loopers.domain.point.Point;
 import com.loopers.domain.point.PointRepository;
 import com.loopers.domain.product.Product;
 import com.loopers.domain.product.ProductRepository;
+import com.loopers.domain.sender.MessageSender;
 import com.loopers.domain.stock.Stock;
 import com.loopers.domain.stock.StockRepository;
 import com.loopers.domain.user.Gender;
@@ -25,6 +28,7 @@ import com.loopers.utils.DatabaseCleanUp;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
@@ -33,6 +37,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.verify;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class OrderApiE2ETest {
@@ -66,6 +73,9 @@ class OrderApiE2ETest {
 
     @Autowired
     private UserRepository userRepository;
+
+    @MockBean
+    private MessageSender messageSender;
 
     private final String userId = "hoyongeom";
     private final String password = "1q2w3e4r!@";
@@ -435,6 +445,8 @@ class OrderApiE2ETest {
                     () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
                     () -> assertThat(response.getBody().data().getOrders()).hasSize(1)
             );
+            verify(messageSender, atLeastOnce())
+                    .send(eq(Topics.TRACE), anyString(), any(EventMessage.class));
         }
 
         @Test
@@ -502,6 +514,8 @@ class OrderApiE2ETest {
                     () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
                     () -> assertThat(response.getBody().data()).isNotNull()
             );
+            verify(messageSender, atLeastOnce())
+                    .send(eq(Topics.TRACE), anyString(), any(EventMessage.class));
         }
 
         @Test

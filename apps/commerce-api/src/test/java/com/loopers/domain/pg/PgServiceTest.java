@@ -45,10 +45,12 @@ import static org.mockito.Mockito.*;
         "resilience4j.circuitbreaker.instances.pgCircuit.permitted-number-of-calls-in-half-open-state=2",
         "resilience4j.circuitbreaker.instances.pgCircuit.slow-call-duration-threshold= 3s",
         "resilience4j.circuitbreaker.instances.pgCircuit.slow-call-rate-threshold= 50",
+        "spring.kafka.listener.auto-startup=false",
+        "spring.kafka.bootstrap-servers=localhost:0"
 
 
 })
-//@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 class PgServiceTest {
 
     @Autowired
@@ -62,7 +64,6 @@ class PgServiceTest {
         cbRegistry.getAllCircuitBreakers().forEach(CircuitBreaker::reset);
         retryRegistry.getAllRetries().forEach(r -> retryRegistry.remove(r.getName()));
     }
-
 
     @TestConfiguration
     static class TestConfig {
