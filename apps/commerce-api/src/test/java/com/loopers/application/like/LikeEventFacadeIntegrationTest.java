@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-class LikeFacadeIntegrationTest {
+class LikeEventFacadeIntegrationTest {
 
     @Autowired
     private LikeFacade likeFacade;

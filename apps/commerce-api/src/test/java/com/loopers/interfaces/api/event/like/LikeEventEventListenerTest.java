@@ -3,19 +3,23 @@ package com.loopers.interfaces.api.event.like;
 import com.loopers.domain.like.LikeEvent;
 import com.loopers.domain.product.ProductCommand;
 import com.loopers.domain.product.ProductService;
+import com.loopers.domain.sender.MessageSender;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-class LikeEventListenerTest {
+class LikeEventEventListenerTest {
 
     private final ProductService productService = mock(ProductService.class);
-    private final LikeEventListener likeEventListener = new LikeEventListener(productService);
+    private final MessageSender messageSender = mock(MessageSender.class);
+    private final LikeEventListener likeEventListener = new LikeEventListener(productService, messageSender);
 
     @Nested
     @DisplayName("Like 이벤트 리스너 테스트")
@@ -36,6 +40,7 @@ class LikeEventListenerTest {
             // then
             ArgumentCaptor<ProductCommand.Product> captor = ArgumentCaptor.forClass(ProductCommand.Product.class);
             verify(productService).increaseLikeCount(captor.capture());
+            verify(messageSender).send(anyString(), anyString(), any());
             assertThat(captor.getValue().getProductId()).isEqualTo(productId);
         }
 
@@ -54,6 +59,7 @@ class LikeEventListenerTest {
             // then
             ArgumentCaptor<ProductCommand.Product> captor = ArgumentCaptor.forClass(ProductCommand.Product.class);
             verify(productService).decreaseLikeCount(captor.capture());
+            verify(messageSender).send(anyString(), anyString(), any());
             assertThat(captor.getValue().getProductId()).isEqualTo(productId);
         }
     }

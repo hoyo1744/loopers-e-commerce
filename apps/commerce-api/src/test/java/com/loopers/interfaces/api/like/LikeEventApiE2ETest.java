@@ -20,7 +20,7 @@ import org.springframework.http.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class LikeApiE2ETest {
+class LikeEventApiE2ETest {
 
     @Autowired
     private TestRestTemplate restTemplate;
@@ -63,7 +63,7 @@ class LikeApiE2ETest {
 
     @DisplayName("상품 좋아요 등록 E2E 테스트")
     @Nested
-    public class Like {
+    public class LikeEvent {
         /**
          * - [O]  상품 좋아요 등록시, 이미 좋아요가 등록있어도 , 200 OK 와 Product liked successfully. 메시지가 전달된다.
          * - [O]  상품 좋아요 등록시, 좋아요가 등록되지 않았다면, 200 OK 와 Product liked successfully.메시지가 전달된다.
