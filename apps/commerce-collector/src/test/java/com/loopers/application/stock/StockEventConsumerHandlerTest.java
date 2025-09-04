@@ -58,7 +58,7 @@ class StockEventConsumerHandlerTest {
 
         // then
         verify(productMetricService, times(1))
-                .upsertSales(eq(202L), any(LocalDate.class), eq(-3L), any(LocalDateTime.class));
+                .upsertSales(eq(202L), any(LocalDate.class), eq(3L), any(LocalDateTime.class));
 
         verify(eventHandledService, times(3))
                 .processIfNotHandled(eq("evt-stock-1"), eq("stock-topic"), eq(2), eq(987L));
