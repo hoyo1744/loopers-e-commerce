@@ -33,5 +33,6 @@ public class PointPaymentProcessor implements PaymentProcessor{
         paymentService.create(PaymentCommand.Create.ofPoint(request.getAmount(), request.getOrderId(), request.getOrderNumber()));
         paymentService.pay(PaymentCommand.Pay.of(request.getUserId(), request.getOrderNumber()));
         orderService.complete(request.getOrderNumber());
+
     }
 }

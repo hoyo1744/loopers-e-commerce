@@ -1,0 +1,14 @@
+spring:
+  kafka:
+    bootstrap-servers: localhost:0   # 브로커에 절대 붙지 않도록 더미 주소
+    listener:
+      auto-startup: false            # @KafkaListener 자동 기동 금지
+    admin:
+      auto-create: false             # KafkaAdmin이 토픽 자동 생성하지 않게
+      fail-fast: false               # 브로커 없다고 테스트 실패하지 않게
+
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
+      # KafkaAnnotationDrivenConfiguration 은 코드 레벨에선 public 이 아니라 제외 불가,
+      # KafkaAutoConfiguration 제외하면 같이 막히므로 생략해도 됩니다

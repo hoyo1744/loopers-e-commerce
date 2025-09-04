@@ -4,6 +4,8 @@ dependencies {
     // add-ons
     implementation(project(":modules:jpa"))
     implementation(project(":modules:redis"))
+    implementation(project(":modules:kafka"))
+    implementation(project(":modules:common-kafka-event"))
     implementation(project(":supports:jackson"))
     implementation(project(":supports:logging"))
     implementation(project(":supports:monitoring"))
@@ -20,6 +22,7 @@ dependencies {
     implementation("io.github.resilience4j:resilience4j-spring-boot3")
     implementation("org.springframework.boot:spring-boot-starter-aop")
 
+
     // querydsl
     implementation("com.querydsl:querydsl-jpa:$querydslVersion:jakarta")
     annotationProcessor("com.querydsl:querydsl-apt:$querydslVersion:jakarta")
@@ -32,6 +35,7 @@ dependencies {
     // test-fixtures
     testImplementation(testFixtures(project(":modules:jpa")))
     testImplementation(testFixtures(project(":modules:redis")))
+    testImplementation(testFixtures(project(":modules:kafka")))
 
     testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
 

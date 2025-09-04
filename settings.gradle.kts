@@ -2,9 +2,12 @@ rootProject.name = "loopers-e-commerce"
 
 include(
     ":apps:commerce-api",
+    ":apps:commerce-collector",
     ":apps:pg-simulator",
     ":modules:jpa",
     ":modules:redis",
+    ":modules:kafka",
+    "modules:common-kafka-event",
     ":supports:jackson",
     ":supports:logging",
     ":supports:monitoring",
@@ -30,3 +33,4 @@ pluginManagement {
         }
     }
 }
+

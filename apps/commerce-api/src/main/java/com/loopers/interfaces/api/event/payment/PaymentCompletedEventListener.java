@@ -17,7 +17,6 @@ public class PaymentCompletedEventListener {
 
     @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
     public void handle(PaymentEvent.Completed event) {
-        System.out.println("TEST22");
         paymentEventFacade.handlePaymentCompleted(PaymentEventCriteria.PaymentCompleted.of(event.getUserCouponId(), event.getOrderNumber()));
     }
 }

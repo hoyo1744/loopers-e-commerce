@@ -61,6 +61,17 @@ spring:
     activate:
       on-profile: local, test
 
+  kafka:
+    bootstrap-servers: localhost:19092
+    admin:
+      properties:
+        bootstrap.servers: kafka:9092
+
+
+spring.config.activate.on-profile: local, test
+
+
+
 ---
 spring:
   config:
