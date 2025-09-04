@@ -1,13 +1,16 @@
 package com.loopers.infrastructure.trace;
 
+import com.loopers.common.kafka.event.trace.TraceOutEvent;
 import com.loopers.domain.trace.TraceEvent;
 import com.loopers.domain.trace.TraceEventPublisher;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
+@Primary
 public class TraceEventPublisherImpl implements TraceEventPublisher {
 
     private final ApplicationEventPublisher eventPublisher;

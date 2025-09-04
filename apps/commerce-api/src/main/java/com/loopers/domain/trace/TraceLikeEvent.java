@@ -1,5 +1,6 @@
 package com.loopers.domain.trace;
 
+import com.loopers.common.kafka.event.EventType;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
@@ -11,13 +12,13 @@ public class TraceLikeEvent {
     @ToString
     public static class LikeCreated implements TraceEvent {
 
-        String userId;
+        private String userId;
 
-        Long productId;
+        private Long productId;
 
         @Override
-        public String getEvent() {
-            return "LIKE_CREATED";
+        public EventType getEvent() {
+            return EventType.TRACE_LIKE_CREATED;
         }
 
         @Override
@@ -54,8 +55,8 @@ public class TraceLikeEvent {
         Long productId;
 
         @Override
-        public String getEvent() {
-            return "LIKE_CANCELED";
+        public EventType getEvent() {
+            return EventType.TRACE_LIKE_CANCELED;
         }
 
         @Override
