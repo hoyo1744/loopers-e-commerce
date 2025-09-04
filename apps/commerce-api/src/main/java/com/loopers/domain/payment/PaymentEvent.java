@@ -1,6 +1,5 @@
 package com.loopers.domain.payment;
 
-import com.loopers.application.payment.PaymentEventCriteria;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -26,20 +25,6 @@ public class PaymentEvent {
                     .payment(payment)
                     .build();
         }
-
-        public PaymentEventCriteria.PaymentRequest toPaymentRequestEvent() {
-            return PaymentEventCriteria.PaymentRequest.of(
-                    userId,
-                    couponId,
-                    PaymentEventCriteria.Payment.of(
-                            payment.orderId,
-                            payment.cardType,
-                            payment.cardNo,
-                            payment.amount,
-                            payment.getPaymentType()
-                    )
-            );
-        }
     }
 
     @Getter
@@ -48,7 +33,7 @@ public class PaymentEvent {
         private Long userCouponId;
         private String orderNumber;
 
-        public static Completed of(Long userCouponId, String orderNumber) {
+        public static Completed of( Long userCouponId, String orderNumber) {
             return Completed
                     .builder()
                     .userCouponId(userCouponId)
