@@ -1,5 +1,6 @@
 package com.loopers.domain.payment;
 
+import com.loopers.domain.sender.MessageSender;
 import com.loopers.support.error.CoreException;
 import com.loopers.utils.DatabaseCleanUp;
 import org.junit.jupiter.api.AfterEach;
@@ -8,6 +9,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.UUID;
 
@@ -24,6 +26,9 @@ class PaymentRequestServiceIntegrationTest {
 
     @Autowired
     private DatabaseCleanUp databaseCleanUp;
+
+    @MockBean
+    private MessageSender messageSender;
 
     @AfterEach
     void tearDown() {

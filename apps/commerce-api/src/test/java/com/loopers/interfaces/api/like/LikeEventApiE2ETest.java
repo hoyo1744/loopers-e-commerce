@@ -6,6 +6,7 @@ import com.loopers.domain.brand.Brand;
 import com.loopers.domain.brand.BrandRepository;
 import com.loopers.domain.product.Product;
 import com.loopers.domain.product.ProductRepository;
+import com.loopers.domain.sender.MessageSender;
 import com.loopers.domain.stock.Stock;
 import com.loopers.domain.stock.StockRepository;
 import com.loopers.interfaces.api.ApiResponse;
@@ -13,6 +14,7 @@ import com.loopers.utils.DatabaseCleanUp;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
@@ -39,6 +41,9 @@ class LikeEventApiE2ETest {
 
     @Autowired
     private DatabaseCleanUp databaseCleanUp;
+
+    @MockBean
+    private MessageSender messageSender;
 
     @BeforeEach
     void setUp() {

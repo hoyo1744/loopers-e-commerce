@@ -6,11 +6,11 @@ import lombok.Getter;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-public class LikeEventCriteria {
+public class LikedEventCriteria {
 
     @Getter
     @Builder
-    public static class Changed {
+    public static class Change {
         private String eventId;
         private String topic;
         private Integer partition;
@@ -19,7 +19,7 @@ public class LikeEventCriteria {
         private Long productId;
         private Boolean isLike;
 
-        private Changed(String eventId, String topic, Integer partition, Long offset, LocalDateTime eventTime, Long productId, Boolean isLike) {
+        private Change(String eventId, String topic, Integer partition, Long offset, LocalDateTime eventTime, Long productId, Boolean isLike) {
             this.eventId = eventId;
             this.topic = topic;
             this.partition = partition;
@@ -29,8 +29,8 @@ public class LikeEventCriteria {
             this.isLike = isLike;
         }
 
-        public static Changed of(String eventId, String topic, Integer partition, Long offset, Long productId, LocalDateTime eventTime, Boolean isLike) {
-            return Changed.builder()
+        public static Change of(String eventId, String topic, Integer partition, Long offset, Long productId, LocalDateTime eventTime, Boolean isLike) {
+            return Change.builder()
                     .eventId(eventId)
                     .topic(topic)
                     .partition(partition)

@@ -15,11 +15,15 @@ public class MySqlTestContainersConfig {
             .withUsername("test")
             .withPassword("test")
             .withExposedPorts(3306)
-            .withCommand(
-                "--character-set-server=utf8mb4",
-                "--collation-server=utf8mb4_general_ci",
-                "--skip-character-set-client-handshake"
-            );
+                .withCommand(
+                        "--character-set-server=utf8mb4",
+                        "--collation-server=utf8mb4_general_ci",
+                        "--skip-character-set-client-handshake",
+                        "--max_connections=300",        // 커넥션 제한 늘리기
+                        "--wait_timeout=30",            // idle connection 빨리 정리
+                        "--interactive_timeout=30",
+                        "--skip-name-resolve"
+                );
         mySqlContainer.start();
 
         String mySqlJdbcUrl = String.format(

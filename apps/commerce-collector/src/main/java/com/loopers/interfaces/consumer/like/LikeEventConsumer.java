@@ -3,7 +3,7 @@ package com.loopers.interfaces.consumer.like;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.loopers.application.like.LikeEventConsumerHandler;
-import com.loopers.application.like.LikeEventCriteria;
+import com.loopers.application.like.LikedEventCriteria;
 import com.loopers.common.kafka.event.EventMessage;
 import com.loopers.common.kafka.event.like.LikeOutEvent;
 import com.loopers.common.kafka.topic.Topics;
@@ -38,7 +38,7 @@ public class LikeEventConsumer {
             LikeOutEvent.Changed payload = event.getPayload();
 
             likeEventConsumerHandler.handleLikeEvent(
-                    LikeEventCriteria.Changed.of(
+                    LikedEventCriteria.Change.of(
                     event.getPayload().getEventId(),
                     topic,
                     partition,

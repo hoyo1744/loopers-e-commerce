@@ -15,6 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
 
+import static com.loopers.application.eventlog.TraceEventCriteria.Log;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -30,24 +31,25 @@ class TraceEventConsumerHandlerTest {
     @InjectMocks
     TraceEventConsumerHandler handler;
 
-    private TraceEventCriteria.Logged loggedEvent(String eventId) {
-        return TraceEventCriteria.Logged.of(
-                eventId,
-                "trace-topic",
-                1,
-                456L,
-                LocalDateTime.now(),
-                "user-1",
-                EventType.TRACE_ORDER_COMPLETED,
-                "{\"orderId\":123}"
-        );
-    }
+
+
 
     @Test
     @DisplayName("최초 처리일 때만 createEventLog가 호출된다")
     void shouldCallCreateEventLogOnlyOnFirstHandling() {
         // given
-        TraceEventCriteria.Logged event = loggedEvent("evt-trace-1");
+        Log event =
+                Log.of(
+                        "evt-trace-1",
+                        "trace-topic",
+                        1,
+                        456L,
+                        LocalDateTime.now(),
+                        "user-1",
+                        EventType.TRACE_ORDER_COMPLETED,
+                        "{\"orderId\":123}"
+                );
+
 
         when(eventHandledService.processIfNotHandled(anyString(), anyString(), anyInt(), anyLong()))
                 .thenReturn(true)
@@ -81,7 +83,16 @@ class TraceEventConsumerHandlerTest {
     @DisplayName("이미 처리된 이벤트면 createEventLog는 호출되지 않는다")
     void shouldNotCallCreateEventLog_whenAlreadyHandled() {
         // given
-        TraceEventCriteria.Logged event = loggedEvent("evt-trace-2");
+        Log event =       Log.of(
+                "evt-trace-2",
+                "trace-topic",
+                1,
+                456L,
+                LocalDateTime.now(),
+                "user-1",
+                EventType.TRACE_ORDER_COMPLETED,
+                "{\"orderId\":123}"
+        );
         when(eventHandledService.processIfNotHandled(anyString(), anyString(), anyInt(), anyLong()))
                 .thenReturn(false);
 

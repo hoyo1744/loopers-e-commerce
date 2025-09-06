@@ -1,6 +1,5 @@
 package com.loopers.application.stock;
 
-import com.loopers.application.like.LikeEventCriteria;
 import com.loopers.domain.eventhandled.EventHandledService;
 import com.loopers.domain.metric.ProductMetricService;
 import lombok.RequiredArgsConstructor;

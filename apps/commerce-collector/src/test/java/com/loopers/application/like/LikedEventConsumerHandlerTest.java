@@ -16,7 +16,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class LikeEventConsumerHandlerTest {
+class LikedEventConsumerHandlerTest {
 
     @Mock
     EventHandledService eventHandledService;
@@ -27,8 +27,8 @@ class LikeEventConsumerHandlerTest {
     @InjectMocks
     LikeEventConsumerHandler handler;
 
-    private LikeEventCriteria.Changed likeEvent(String eventId) {
-        return LikeEventCriteria.Changed.of(
+    private LikedEventCriteria.Change likeEvent(String eventId) {
+        return LikedEventCriteria.Change.of(
                 eventId,
                 "like-topic",
                 0,
@@ -46,7 +46,7 @@ class LikeEventConsumerHandlerTest {
     void upsertLikeIsCalledOnlyOnce_whenDuplicateEventsArriveSequentially() {
 
         // given
-        LikeEventCriteria.Changed event = likeEvent("evt-1");
+        LikedEventCriteria.Change event = likeEvent("evt-1");
 
         when(eventHandledService.processIfNotHandled(anyString(), anyString(), anyInt(), anyLong()))
                 .thenReturn(true)
@@ -72,7 +72,7 @@ class LikeEventConsumerHandlerTest {
     @Test
     void upsertLikeIsNotCalled_whenEventHandledServiceReturnsFalse() {
         // given
-        LikeEventCriteria.Changed event = likeEvent("evt-3");
+        LikedEventCriteria.Change event = likeEvent("evt-3");
 
 
         // when

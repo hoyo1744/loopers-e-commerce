@@ -15,7 +15,7 @@ public class LikeEventConsumerHandler {
     private final ProductMetricService productMetricService;
 
     @Transactional
-    public void handleLikeEvent(LikeEventCriteria.Changed event) {
+    public void handleLikeEvent(LikedEventCriteria.Change event) {
 
         boolean isNewEvent = eventHandledService.processIfNotHandled(event.getEventId(), event.getTopic(), event.getPartition(), 
                 event.getOffset());

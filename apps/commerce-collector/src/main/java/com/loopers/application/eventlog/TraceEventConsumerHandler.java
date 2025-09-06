@@ -1,7 +1,7 @@
 package com.loopers.application.eventlog;
 
+import com.loopers.common.kafka.event.EventType;
 import com.loopers.domain.eventhandled.EventHandledService;
-import com.loopers.domain.eventlog.EventLog;
 import com.loopers.domain.eventlog.EventLogCommand;
 import com.loopers.domain.eventlog.EventLogService;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,7 @@ public class TraceEventConsumerHandler {
     private final EventLogService eventLogService;
 
     @Transactional
-    public void handleTraceEvent(TraceEventCriteria.Logged event) {
+    public void handleTraceEvent(TraceEventCriteria.Log event) {
 
         boolean isNewEvent = eventHandledService.processIfNotHandled(event.getEventId(), event.getTopic(), event.getPartition(),
                 event.getOffset());

@@ -49,7 +49,7 @@ public class TraceEventConsumer {
             };
 
             traceEventConsumerHandler.handleTraceEvent(
-                    TraceEventCriteria.Logged.of(
+                    TraceEventCriteria.Log.of(
                             event.getEventId(),
                             topic,
                             partition,
