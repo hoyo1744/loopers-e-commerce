@@ -2,11 +2,12 @@ package com.loopers.domain.like;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.ToString;
 
 public class LikeEvent {
 
-
     @Getter
+    @ToString
     @Builder
     public static class Like {
         private Long productId;
@@ -27,6 +28,7 @@ public class LikeEvent {
     }
 
     @Getter
+    @ToString
     @Builder
     public static class Unlike {
         private Long productId;
@@ -45,4 +47,6 @@ public class LikeEvent {
                     .build();
         }
     }
+
+
 }

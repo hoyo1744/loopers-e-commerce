@@ -1,5 +1,6 @@
 package com.loopers.domain.order;
 
+import com.loopers.common.kafka.event.trace.TraceOrderOutEvent;
 import com.loopers.domain.trace.TraceEventPublisher;
 import com.loopers.domain.trace.TraceOrderEvent;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +33,7 @@ public class OrderService {
 
         Order save = orderRepository.save(order);
 
-        orderEventPublisher.publish(OrderEvent.Completed.of(save.getId(), save.getOrderNumber(), save.calculateFinalPrice()));
+        orderEventPublisher.publish(OrderEvent.Completed.of(order.getId(), order.getOrderNumber(), order.calculateFinalPrice()));
 
         traceEventPublisher.publish(TraceOrderEvent.OrderCompleted.of(
                 command.getUserId(),

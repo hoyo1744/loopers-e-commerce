@@ -27,7 +27,12 @@ public class PaymentEventCommand {
 
         public PaymentEvent.Request toPaymentRequestedEvent() {
             return PaymentEvent.Request.of(
-                    userId, couponId, PaymentEvent.Payment.of(payment.getOrderNumber(), payment.getCardType(), payment.getCardNo(), payment.getAmount(), payment.getPaymentType()));
+                    userId, couponId, PaymentEvent.Payment.of(
+                            payment.getOrderNumber(),
+                            payment.getCardType(),
+                            payment.getCardNo(),
+                            payment.getAmount(),
+                            payment.getPaymentType()));
         }
     }
 

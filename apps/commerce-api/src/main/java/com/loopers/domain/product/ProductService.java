@@ -2,6 +2,7 @@ package com.loopers.domain.product;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -30,10 +31,12 @@ public class ProductService {
         return ProductInfo.OrderProducts.of(orderProductList);
     }
 
+    @Transactional
     public void increaseLikeCount(ProductCommand.Product product) {
         productRepository.increaseLikeCount(product.getProductId());
     }
 
+    @Transactional
     public void decreaseLikeCount(ProductCommand.Product product) {
         productRepository.decreaseLikeCount(product.getProductId());
     }

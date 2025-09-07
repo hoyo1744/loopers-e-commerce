@@ -10,7 +10,6 @@ public class PaymentEventService {
 
     private final PaymentEventPublisher paymentEventPublisher;
 
-
     @Transactional
     public void publishRequested(PaymentEventCommand.Requested event) {
         paymentEventPublisher.publish(event.toPaymentRequestedEvent());

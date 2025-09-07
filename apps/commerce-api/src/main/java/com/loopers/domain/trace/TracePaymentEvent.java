@@ -1,5 +1,6 @@
 package com.loopers.domain.trace;
 
+import com.loopers.common.kafka.event.EventType;
 import com.loopers.domain.payment.PaymentType;
 import lombok.Builder;
 import lombok.Getter;
@@ -24,8 +25,8 @@ public class TracePaymentEvent {
 
 
         @Override
-        public String getEvent() {
-            return "PAYMENT_COMPLETED";
+        public EventType getEvent() {
+            return EventType.TRACE_PAYMENT_COMPLETED;
         }
 
         @Override

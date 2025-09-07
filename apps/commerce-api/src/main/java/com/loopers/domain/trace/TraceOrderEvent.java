@@ -1,5 +1,6 @@
 package com.loopers.domain.trace;
 
+import com.loopers.common.kafka.event.EventType;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
@@ -21,8 +22,8 @@ public class TraceOrderEvent {
 
 
         @Override
-        public String getEvent() {
-            return "ORDER_COMPLETED";
+        public EventType getEvent() {
+            return EventType.TRACE_ORDER_COMPLETED;
         }
 
         @Override

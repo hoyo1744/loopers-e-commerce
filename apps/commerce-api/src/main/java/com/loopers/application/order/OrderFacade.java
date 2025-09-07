@@ -78,7 +78,8 @@ public class OrderFacade {
         }
 
         // 결제 요청 이벤트 발행
-        paymentEventService.publishRequested(PaymentEventCommand.Requested.of(request.getUserId(), couponId,
+        paymentEventService.publishRequested(
+                PaymentEventCommand.Requested.of(request.getUserId(), couponId,
                 PaymentEventCommand.Payment.of(order.getOrderNumber(), request.getCardType(), request.getCardNo(), order.calculateFinalPrice(), request.getPaymentType())));
 
         // 결제 완료 이벤트 발행

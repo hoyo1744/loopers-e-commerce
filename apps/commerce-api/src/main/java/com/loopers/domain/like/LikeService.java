@@ -4,6 +4,7 @@ import com.loopers.domain.trace.TraceEventPublisher;
 import com.loopers.domain.trace.TraceLikeEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Set;
@@ -31,6 +32,7 @@ public class LikeService {
         return likeRepository.countByProductId(productId);
     }
 
+    @Transactional
     public void likeProduct(LikeCommand.Like command) {
         Like like = Like.create(command.getUserId(), command.getProductId());
         likeRepository.insertIfNotExists(like.getUserId(), like.getProductId());
@@ -38,6 +40,7 @@ public class LikeService {
         traceEventPublisher.publish(TraceLikeEvent.LikeCreated.of(like.getUserId(), like.getProductId()));
     }
 
+    @Transactional
     public void unLikeProduct(LikeCommand.Unlike command) {
         likeRepository.deleteByUserIdAndProductId(command.getUserId(), command.getProductId());
         likeEventPublisher.publish(LikeEvent.Unlike.of(command.getProductId(), command.getUserId()));
