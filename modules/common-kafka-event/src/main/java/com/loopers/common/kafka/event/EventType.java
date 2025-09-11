@@ -13,6 +13,12 @@ public enum EventType {
     // 제품 좋아요 변화 이벤트
     LIKE_CHANGED("LIKE_CHANGED"),
 
+    // 주문 이벤트
+    ORDER_COMPLETED("ORDER_COMPLETED"),
+
+    // 페이지 조회 이벤트
+    PAGE_VIEWED("PAGE_VIEWED"),
+
     // TRACE 도메인 이벤트
     TRACE_LIKE_CREATED("TRACE_LIKE_CREATED"),
     TRACE_LIKE_CANCELED("TRACE_LIKE_CANCELED"),

@@ -6,6 +6,10 @@ public class Topics {
 
     public static final String TRACE = "trace-event";
 
+    public static final String ORDER = "order-event";
+
+    public static final String PAGE_VIEW = "pageview-event";
+
     public static class Trace {
         public static final String LIKE_CREATED = "trace-like-created";
         public static final String LIKE_CANCELED = "trace-like-canceled";
