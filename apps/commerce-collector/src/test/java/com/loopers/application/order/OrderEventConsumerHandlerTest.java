@@ -63,6 +63,7 @@ class OrderEventConsumerHandlerTest {
         handler.handleOrderEvent(event);
         handler.handleOrderEvent(event);
 
+
         // then
         verify(productMetricService, times(1))
                 .upsertSales(eq(orderId), eq(event.metricDate()), eq(1L), eq(event.getEventTime()));
