@@ -14,6 +14,19 @@ datasource:
       - host: ${REDIS_REPLICA_1_HOST}
         port: ${REDIS_REPLICA_1_PORT}
 
+ranking:
+  ttl-hours: 36
+  weight:
+    like: 0.2
+    sales: 0.7
+    pv: 0.1
+  carry-over:
+    enabled: true
+    cron: "0 0 0 * * *"
+    zone: "Asia/Seoul"
+    rate: 0.10
+    lock-ttl-seconds: 300
+
 ---
 spring.config.activate.on-profile: local, test
 
@@ -25,6 +38,19 @@ datasource:
     replicas:
       - host: localhost
         port: 6380
+
+ranking:
+  ttl-hours: 36
+  weight:
+    like: 0.2
+    sales: 0.7
+    pv: 0.1
+  carry-over:
+    enabled: true
+    cron: "0 0 0 * * *"
+    zone: "Asia/Seoul"
+    rate: 0.10
+    lock-ttl-seconds: 300
 
 ---
 spring.config.activate.on-profile: dev
