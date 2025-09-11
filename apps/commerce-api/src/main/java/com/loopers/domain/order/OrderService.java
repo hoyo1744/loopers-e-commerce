@@ -33,7 +33,12 @@ public class OrderService {
 
         Order save = orderRepository.save(order);
 
-        orderEventPublisher.publish(OrderEvent.Completed.of(order.getId(), order.getOrderNumber(), order.calculateFinalPrice()));
+
+        orderEventPublisher.publish(OrderEvent.Completed.of(command.getUserId(), order.getId(), order.getOrderNumber(), order.calculateFinalPrice(),
+                command.orderProducts.getOrderProducts().stream()
+                        .map(op -> OrderEvent.OrderProduct.of(op.getProductId(), op.getQuantity())).toList()
+                )
+        );
 
         traceEventPublisher.publish(TraceOrderEvent.OrderCompleted.of(
                 command.getUserId(),
