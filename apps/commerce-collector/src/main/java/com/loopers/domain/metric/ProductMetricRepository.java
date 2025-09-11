@@ -1,7 +1,6 @@
 package com.loopers.domain.metric;
 
-import org.springframework.data.repository.query.Param;
-
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -21,4 +20,8 @@ public interface ProductMetricRepository {
                         LocalDate metricDate,
                         Long count,
                         LocalDateTime eventTime);
+
+    void carryOver(LocalDate today, double rate, Duration hour);
+
+    void rebuildDailyAllRankings(LocalDate date);
 }
