@@ -56,4 +56,8 @@ public class LikeService {
                         )
                 ).toList();
     }
+
+    public List<Long> getLikedProductIdsByUserId(String userId) {
+        return likeRepository.findLikedProductIdsByUserId(userId);
+    }
 }

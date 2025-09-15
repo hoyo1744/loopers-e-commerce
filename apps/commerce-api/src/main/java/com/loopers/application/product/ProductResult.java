@@ -47,21 +47,25 @@ public class ProductResult {
         private Like like;
         private Stock stock;
 
-        private ProductDetail(String name, Long price, Brand brand, Like like, Stock stock) {
+        private Long ranking;
+
+        private ProductDetail(String name, Long price, Brand brand, Like like, Stock stock, Long ranking) {
             this.name = name;
             this.price = price;
             this.brand = brand;
             this.like = like;
             this.stock = stock;
+            this.ranking = ranking;
         }
 
-       public static ProductDetail of(String name, Long price, Brand brand, Like like, Stock stock) {
+       public static ProductDetail of(String name, Long price, Brand brand, Like like, Stock stock, Long ranking) {
             return ProductDetail.builder()
                     .name(name)
                     .price(price)
                     .brand(brand)
                     .like(like)
                     .stock(stock)
+                    .ranking(ranking)
                     .build();
        }
     }

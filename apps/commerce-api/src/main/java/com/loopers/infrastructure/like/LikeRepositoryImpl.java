@@ -54,4 +54,12 @@ public class LikeRepositoryImpl implements LikeRepository {
     public Set<Long> findLikedProductIds(String userId, List<Long> productIds) {
         return likeJpaRepository.findLikedProductIds(userId, productIds);
     }
+
+    @Override
+    public List<Long> findLikedProductIdsByUserId(String userId) {
+        return likeJpaRepository.findAllByUserId(userId)
+                .stream()
+                .map(Like::getProductId)
+                .toList();
+    }
 }

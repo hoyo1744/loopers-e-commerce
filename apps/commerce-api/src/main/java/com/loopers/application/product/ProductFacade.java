@@ -8,6 +8,8 @@ import com.loopers.domain.like.LikeService;
 import com.loopers.domain.product.ProductCommand;
 import com.loopers.domain.product.ProductInfo;
 import com.loopers.domain.product.ProductService;
+import com.loopers.domain.rankings.RankingsInfo;
+import com.loopers.domain.rankings.RankingsService;
 import com.loopers.domain.stock.StockInfo;
 import com.loopers.domain.stock.StockService;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Component
@@ -29,6 +32,8 @@ public class ProductFacade {
     private final StockService stockService;
 
     private final LikeService likeService;
+
+    private final RankingsService rankingsService;
 
     public List<ProductResult.Product> getProducts(ProductCriteria.ProductRequest request) {
         List<ProductInfo.ProductQuery> products = productService.getProducts(ProductCommand.Search.of(
@@ -55,12 +60,13 @@ public class ProductFacade {
                             ProductResult.Like.of(likedProductIds.contains(product.getProductId()), product.getLikes())
                     );
                 }).toList();
-
     }
 
     public ProductResult.ProductDetail getProductDetail(ProductCriteria.ProductDetailRequest request) {
         ProductInfo.ProductDetail findProductDetail
-                = productService.getProductDetail(request.getProductId());
+                = productService.getProduct(request.getProductId());
+
+        Optional<RankingsInfo.Ranking> ranking = rankingsService.getRanking(request.getProductId());
 
         BrandInfo.Brand findBrand
                 = brandService.getBrand(BrandCommand.Search.of(findProductDetail.getBrandId()));
@@ -76,7 +82,8 @@ public class ProductFacade {
                 findProductDetail.getPrice(),
                 ProductResult.Brand.of(findBrand.getName()),
                 ProductResult.Like.of(liked, productLikeCount),
-                ProductResult.Stock.of(stock.getQuantity())
+                ProductResult.Stock.of(stock.getQuantity()),
+                ranking.map(RankingsInfo.Ranking::getRank).orElse(null)
         );
     }
 

@@ -5,20 +5,19 @@ import com.loopers.domain.brand.BrandRepository;
 import com.loopers.domain.like.Like;
 import com.loopers.domain.like.LikeRepository;
 import com.loopers.domain.product.Product;
-import com.loopers.domain.product.ProductInfo;
 import com.loopers.domain.product.ProductRepository;
+import com.loopers.domain.sender.MessageSender;
 import com.loopers.domain.stock.Stock;
 import com.loopers.domain.stock.StockRepository;
 import com.loopers.utils.DatabaseCleanUp;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -47,6 +46,9 @@ class ProductFacadeIntegrationTest {
 
     @Autowired
     private DatabaseCleanUp databaseCleanUp;
+
+    @MockBean
+    private MessageSender messageSender;
 
     @AfterEach
     void tearDown() {

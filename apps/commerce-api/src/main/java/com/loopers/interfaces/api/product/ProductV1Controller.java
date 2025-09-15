@@ -25,7 +25,8 @@ public class ProductV1Controller implements ProductV1ApiSpec {
                         productDetail.getPrice(),
                         ProductResponse.Brand.of(productDetail.getBrand().getName()),
                         ProductResponse.Like.of(productDetail.getLike().getLiked(), productDetail.getLike().getCount()),
-                        ProductResponse.Stock.of(productDetail.getStock().getQuantity())
+                        ProductResponse.Stock.of(productDetail.getStock().getQuantity()),
+                        productDetail.getRanking()
                 )
         );
     }

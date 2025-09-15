@@ -53,32 +53,31 @@ public class ProductResponse {
     @Getter
     @Builder
     public static class ProductDetail {
-
         private String name;
         private Long price;
-
         private Brand brand;
-
         private Like like;
-
         private Stock stock;
+        private Long rank;
 
-        private ProductDetail(String name, Long price, Brand brand, Like like, Stock stock) {
+        private ProductDetail(String name, Long price, Brand brand, Like like, Stock stock, Long rank) {
             this.name = name;
             this.price = price;
             this.brand = brand;
             this.like = like;
             this.stock = stock;
+            this.rank = rank;
         }
 
 
-        public static ProductDetail of(String name, Long price, Brand brand, Like like, Stock stock) {
+        public static ProductDetail of(String name, Long price, Brand brand, Like like, Stock stock, Long rank) {
             return ProductDetail.builder()
                     .name(name)
                     .price(price)
                     .brand(brand)
                     .like(like)
                     .stock(stock)
+                    .rank(rank)
                     .build();
         }
     }

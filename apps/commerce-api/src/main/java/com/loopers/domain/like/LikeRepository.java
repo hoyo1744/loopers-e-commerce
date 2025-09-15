@@ -19,4 +19,6 @@ public interface LikeRepository {
 
     Set<Long> findLikedProductIds(String userId, List<Long> productIds);
 
+    List<Long> findLikedProductIdsByUserId(String userId);
+
 }
