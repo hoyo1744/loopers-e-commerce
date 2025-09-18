@@ -22,10 +22,11 @@ public class RankingsV1Controller implements RankingsV1ApiSpec {
     public ApiResponse<RankingsResponse.Rankings> getRankings(@RequestHeader(value = "X-USER-ID", required = false) String userId,
                                                               @RequestParam LocalDate date,
                                                               @RequestParam(defaultValue = "20") Long size,
-                                                              @RequestParam(defaultValue = "1") Long page
+                                                              @RequestParam(defaultValue = "1") Long page,
+                                                              @RequestParam String period
                                                               ) {
 
-        List<RankingsResult.Rankings> rankings = rankingFacade.getRankings(RankingsCriteria.PageInfo.of(userId, date, page, size, "all"));
+        List<RankingsResult.Rankings> rankings = rankingFacade.getRankings(RankingsCriteria.PageInfo.of(userId, date, page, size, "all", period));
 
         return ApiResponse.success(
                 RankingsResponse.Rankings.of(

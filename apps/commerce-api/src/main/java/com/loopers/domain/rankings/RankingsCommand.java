@@ -15,13 +15,15 @@ public class RankingsCommand {
         private Long page;
         private Long size;
         private RankType type;
+        private RankPeriod period;
 
-        public static PageInfo of(LocalDate date, Long page, Long size, RankType type) {
+        public static PageInfo of(LocalDate date, Long page, Long size, RankType type, RankPeriod period) {
             return PageInfo.builder()
                     .date(date)
                     .page(page)
                     .size(size)
                     .type(type)
+                    .period(period)
                     .build();
         }
     }
