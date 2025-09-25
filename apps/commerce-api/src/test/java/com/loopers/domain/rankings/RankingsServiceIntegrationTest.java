@@ -161,7 +161,7 @@ class RankingsServiceIntegrationTest {
             stringRedisTemplate.opsForZSet().add(key, String.valueOf(p2.getId()), 40);
             stringRedisTemplate.opsForZSet().add(key, String.valueOf(p3.getId()), 50);
 
-            RankingsCommand.PageInfo page= RankingsCommand.PageInfo.of(LocalDate.now(), 1L, 2L, RankType.ALL_RANK);
+            RankingsCommand.PageInfo page= RankingsCommand.PageInfo.of(LocalDate.now(), 1L, 2L, RankType.ALL_RANK, RankPeriod.DAILY);
 
             //when
             List<RankingsInfo.ProductSummary> productByRank = rankingsService.getProductByRank(page);
@@ -195,7 +195,7 @@ class RankingsServiceIntegrationTest {
             stringRedisTemplate.opsForZSet().add(key, String.valueOf(p4.getId()), 40);
             stringRedisTemplate.opsForZSet().add(key, String.valueOf(p5.getId()), 50);
 
-            RankingsCommand.PageInfo page = RankingsCommand.PageInfo.of(LocalDate.now(), 2L, 2L, RankType.ALL_RANK);
+            RankingsCommand.PageInfo page = RankingsCommand.PageInfo.of(LocalDate.now(), 2L, 2L, RankType.ALL_RANK, RankPeriod.DAILY);
 
             // when
             List<RankingsInfo.ProductSummary> result = rankingsService.getProductByRank(page);
@@ -219,7 +219,7 @@ class RankingsServiceIntegrationTest {
             stringRedisTemplate.opsForZSet().add(key, String.valueOf(p.getId()), 50);
             stringRedisTemplate.opsForZSet().add(key, String.valueOf(999999L), 60);
 
-            RankingsCommand.PageInfo page = RankingsCommand.PageInfo.of(LocalDate.now(), 1L, 10L, RankType.ALL_RANK);
+            RankingsCommand.PageInfo page = RankingsCommand.PageInfo.of(LocalDate.now(), 1L, 10L, RankType.ALL_RANK, RankPeriod.DAILY);
 
             // when & then
             Assertions.assertThatThrownBy(() -> rankingsService.getProductByRank(page))

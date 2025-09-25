@@ -1,0 +1,68 @@
+spring:
+  main:
+    web-application-type: none
+  application:
+    name: commerce-batch
+  profiles:
+    active: local
+  batch:
+    job:
+      enabled: false
+
+
+  jpa:
+    properties:
+      hibernate:
+        order_updates: true
+        order_inserts: true
+        jdbc:
+          batch_size: 1000
+
+  config:
+    import:
+      - jpa.yml
+      - redis.yml
+      - logging.yml
+      - monitoring.yml
+
+demo-kafka:
+  test:
+    topic-name: demo.internal.topic-v1
+
+---
+
+server:
+  port: 8086
+
+management:
+  server:
+    port: 8087
+
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+server:
+  port: 8086
+
+management:
+  server:
+    port: 8087
+
+---
+spring:
+  config:
+    activate:
+      on-profile: qa
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prd
+
+springdoc:
+  api-docs:
+    enabled: false

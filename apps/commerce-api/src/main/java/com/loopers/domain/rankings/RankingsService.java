@@ -3,6 +3,7 @@ package com.loopers.domain.rankings;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -12,8 +13,16 @@ public class RankingsService {
 
     private final RankingsRepository rankingsRepository;
 
+    private final List<RankingsFetch> rankingsFetches;
+
+
     public List<RankingsInfo.ProductSummary> getProductByRank(RankingsCommand.PageInfo page) {
-        List<RankingsInfo.Ranking> productsByRank = rankingsRepository.getProductsByRank(page);
+
+        RankingsFetch rankingsFetch = rankingsFetches.stream()
+                .filter(fetch -> fetch.supports(page.getPeriod()))
+                .findFirst().orElseThrow(() -> new IllegalArgumentException("RankingsFetch not found: " + page.getPeriod()));
+
+        List<RankingsInfo.Ranking> productsByRank = rankingsFetch.fetch(rankingsRepository, page);
 
         List<RankingsInfo.Product> productsByIds = rankingsRepository.getProductsByIds(productsByRank.stream().map(RankingsInfo.Ranking::getProductId).toList());
 

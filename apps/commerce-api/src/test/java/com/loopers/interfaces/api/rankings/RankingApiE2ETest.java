@@ -80,7 +80,8 @@ class RankingApiE2ETest {
             HttpHeaders headers, String query
     ) {
         ParameterizedTypeReference<ApiResponse<RankingsResponse.Rankings>> type =
-                new ParameterizedTypeReference<>() {};
+                new ParameterizedTypeReference<>() {
+                };
         return restTemplate.exchange(
                 "/api/v1/rankings" + query,
                 HttpMethod.GET,
@@ -116,10 +117,11 @@ class RankingApiE2ETest {
 
             HttpHeaders headers = new HttpHeaders();
             headers.set("X-USER-ID", userId);
-            String query = "?date=" + LocalDate.now() + "&size=2&page=1";
+            String query = "?date=" + LocalDate.now() + "&size=2&page=1&period=daily";
 
             ParameterizedTypeReference<ApiResponse<RankingsResponse.Rankings>> responseType =
-                    new ParameterizedTypeReference<>() {};
+                    new ParameterizedTypeReference<>() {
+                    };
             ResponseEntity<ApiResponse<RankingsResponse.Rankings>> response = restTemplate.exchange(
                     "/api/v1/rankings" + query,
                     HttpMethod.GET,
@@ -174,7 +176,7 @@ class RankingApiE2ETest {
             fixture.zadd(p3, 60.0);
 
             HttpHeaders headers = new HttpHeaders();
-            String query = "?date=" + LocalDate.now() + "&size=2&page=2";
+            String query = "?date=" + LocalDate.now() + "&size=2&page=2&period=daily";
 
             // when
             ResponseEntity<ApiResponse<RankingsResponse.Rankings>> response = getRankings(headers, query);
@@ -202,7 +204,7 @@ class RankingApiE2ETest {
             fixture.stock(p1, 10L);
 
             HttpHeaders headers = new HttpHeaders();
-            String query = "?date=" + LocalDate.now() + "&size=20&page=1";
+            String query = "?date=" + LocalDate.now() + "&size=20&page=1&period=daily";
 
             // when
             ResponseEntity<ApiResponse<RankingsResponse.Rankings>> response = getRankings(headers, query);
@@ -216,3 +218,4 @@ class RankingApiE2ETest {
         }
     }
 }
+

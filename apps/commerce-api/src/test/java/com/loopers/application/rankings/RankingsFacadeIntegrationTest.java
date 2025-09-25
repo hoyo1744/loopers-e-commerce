@@ -1,5 +1,6 @@
 package com.loopers.application.rankings;
 
+import com.loopers.domain.rankings.RankPeriod;
 import com.loopers.fixture.rankings.RankingFixture;
 import com.loopers.domain.brand.Brand;
 import com.loopers.domain.brand.BrandRepository;
@@ -102,7 +103,7 @@ class RankingsFacadeIntegrationTest {
             ));
 
             RankingsCriteria.PageInfo criteria = RankingsCriteria.PageInfo.of(
-                    userId, LocalDate.now(), 1L, 2L, RankType.ALL_RANK.getType()
+                    userId, LocalDate.now(), 1L, 2L, RankType.ALL_RANK.getType(), RankPeriod.DAILY.getPeriod()
             );
 
             // when
@@ -149,7 +150,7 @@ class RankingsFacadeIntegrationTest {
             fx.like(userId, p3);
 
             RankingsCriteria.PageInfo criteria = RankingsCriteria.PageInfo.of(
-                    userId, LocalDate.now(), 2L, 2L, RankType.ALL_RANK.getType()
+                    userId, LocalDate.now(), 2L, 2L, RankType.ALL_RANK.getType(), RankPeriod.DAILY.getPeriod()
             );
 
             // when

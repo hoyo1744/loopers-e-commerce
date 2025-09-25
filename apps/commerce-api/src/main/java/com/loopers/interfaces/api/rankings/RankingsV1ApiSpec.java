@@ -15,7 +15,8 @@ public interface RankingsV1ApiSpec {
                                                         String userId,
                                                         LocalDate date,
                                                         Long size,
-                                                        Long page
+                                                        Long page,
+                                                        String period
                                                         );
 
 }

@@ -1,5 +1,6 @@
 package com.loopers.application.rankings;
 
+import com.loopers.domain.rankings.RankPeriod;
 import com.loopers.domain.rankings.RankType;
 import com.loopers.domain.rankings.RankingsCommand;
 import lombok.AccessLevel;
@@ -20,19 +21,21 @@ public class RankingsCriteria {
         private Long page;
         private Long size;
         private String type;
+        private String period;
 
-        public static PageInfo of(String userId, LocalDate date, Long page, Long size, String type) {
+        public static PageInfo of(String userId, LocalDate date, Long page, Long size, String type, String period) {
             return PageInfo.builder()
                     .userId(userId)
                     .date(date)
                     .page(page)
                     .size(size)
                     .type(type)
+                    .period(period)
                     .build();
         }
 
         public RankingsCommand.PageInfo toPageInfo() {
-            return RankingsCommand.PageInfo.of(date, page, size, RankType.from(type));
+            return RankingsCommand.PageInfo.of(date, page, size, RankType.from(type), RankPeriod.from(period));
         }
     }
 }
