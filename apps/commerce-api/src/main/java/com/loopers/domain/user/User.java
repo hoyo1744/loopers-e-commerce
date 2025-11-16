@@ -70,7 +70,7 @@ public class User {
         requireNonBlank(userId, "회원 ID는 비어있을 수 없습니다.");
 
         if (!userId.matches("^[a-zA-Z0-9]{1,10}$")) {
-            throw new CoreException(ErrorType.BAD_REQUEST, "회원 ID는 영문 및 숫자 10자 이내여야 합니다.");
+            throw new IllegalArgumentException("회원 ID는 영문 및 숫자 10자 이내여야 합니다.");
         }
     }
 
@@ -84,13 +84,13 @@ public class User {
 
     public static void validateEmail(String email) {
         if (!email.matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")) {
-            throw new CoreException(ErrorType.BAD_REQUEST, "올바른 이메일 형식이 아닙니다.");
+            throw new IllegalArgumentException("올바른 이메일 형식이 아닙니다.");
         }
     }
 
     public static void validatePhoneNumber(String phoneNumber) {
         if (!phoneNumber.matches("^01[016789]-\\d{3,4}-\\d{4}$")) {
-            throw new CoreException(ErrorType.BAD_REQUEST, "휴대폰 번호는 01X-XXX(X)-XXXX 형식이어야 합니다.");
+            throw new IllegalArgumentException("휴대폰 번호는 01X-XXX(X)-XXXX 형식이어야 합니다.");
         }
     }
 
@@ -98,19 +98,19 @@ public class User {
         try {
             return LocalDate.parse(birthDate);
         } catch (DateTimeParseException e) {
-            throw new CoreException(ErrorType.BAD_REQUEST, "생년월일은 yyyy-MM-dd 형식이어야 합니다.");
+            throw new IllegalArgumentException("생년월일은 yyyy-MM-dd 형식이어야 합니다.");
         }
     }
 
     public static void validateGender(Gender gender) {
         if (gender == null) {
-            throw new CoreException(ErrorType.BAD_REQUEST, "성별은 비어있을 수 없습니다.");
+            throw new IllegalArgumentException("성별은 비어있을 수 없습니다.");
         }
     }
 
     private static void requireNonBlank(String value, String message) {
         if (value == null || value.isBlank()) {
-            throw new CoreException(ErrorType.BAD_REQUEST, message);
+            throw new IllegalArgumentException(message);
         }
     }
 }
